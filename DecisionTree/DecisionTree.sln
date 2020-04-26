@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.960
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{DA7A21FA-8162-4350-AD77-A8D1B671F3ED}") = "DecisionTree", "DecisionTree\DecisionTree.rxproj", "{82A36622-0A28-4253-A81C-41EAB1E76CAC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{82A36622-0A28-4253-A81C-41EAB1E76CAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82A36622-0A28-4253-A81C-41EAB1E76CAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82A36622-0A28-4253-A81C-41EAB1E76CAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82A36622-0A28-4253-A81C-41EAB1E76CAC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {42215749-D6C6-4E1B-AA84-18762F98F9B2}
+	EndGlobalSection
+EndGlobal
