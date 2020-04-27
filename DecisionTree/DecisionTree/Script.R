@@ -15,8 +15,8 @@ df18 <- data.frame(df18)
 dm_df <- df18
 
 # 데이터에서 위험군/정상군 분리
-# danger가 0이면 정상, 1이면 위험
-dm_df$is_obe <- ifelse(dm_df$HE_obe == 1 | dm_df$HE_obe == 2, 0, 1)
+# danger가 No이면 정상, Yes이면 위험
+dm_df$is_obe <- ifelse(dm_df$HE_obe == 1 | dm_df$HE_obe == 2, 0, 1) # dataframe에 새로운 column을 추가하는 코드
 dm_df$danger <- ifelse(dm_df$is_obe == 1 & dm_df$BO1_1 == 3, "Yes", "No")
 
 # 필요없어진 is_obe 변수를 제거,
