@@ -6,7 +6,7 @@ library(rattle)
 library(rpart.plot)
 library(RColorBrewer)
 
-# 3.6.3 사용
+# R 3.6.3 사용
 
 df18  <- read.spss("../../Data/Hn18_all.sav", header = T)
 
@@ -15,8 +15,12 @@ df18 <- data.frame(df18)
 dm_df <- df18
 
 # 데이터에서 위험군/정상군 분리
-# danger가 No이면 정상, Yes이면 위험
 dm_df$is_obe <- ifelse(dm_df$HE_obe == 1 | dm_df$HE_obe == 2, 0, 1) # dataframe에 새로운 column을 추가하는 코드
+
+# 우리의 예측에 해당하지 않는, 체중 변화 여부를 무응답하거나 소아인 경우를 제외
+dm_df <- dm_df %>% filter(dm_df$BO1_1 != 8 & dm_df$BO1_1 != 9)
+
+# danger가 No이면 정상, Yes이면 위험
 dm_df$danger <- ifelse(dm_df$is_obe == 1 & dm_df$BO1_1 == 3, "Yes", "No")
 
 # 필요없어진 is_obe 변수를 제거,
@@ -37,10 +41,10 @@ dm_df <- dm_df %>% select(-age_month, - wt_pft, - wt_vt, - wt_nn, - wt_pfnt, - w
                           - HE_Folate, - HE_VitA, - HE_VitE, - HE_NNAL, - HE_cough1, - HE_cough2, - HE_sput1, - HE_sput2,
                           - HE_PFTdr, - HE_PFTag, - HE_PFTtr, - HE_PFThs, - Y_BTH_WT, - Y_MTM_YN, - Y_MTM_S1, - Y_MTM_S2,
                           - Y_MTM_D1, - Y_MTM_D2, - Y_FM_YN, - Y_FM_S1, - Y_FM_S2, - Y_FM_D1, - Y_FM_D2, - Y_MLK_ST, - Y_WN_ST,
-                          - Y_SUP_YN, - Y_SUP_KD1, - Y_SUP_KD3, - Y_SUP_KD4, - Y_SUP_KD7, - N_BFD_Y) %>%
+                          - Y_SUP_YN, - Y_SUP_KD1, - Y_SUP_KD3, - Y_SUP_KD4, - Y_SUP_KD7, - N_BFD_Y, - wt_hs) %>%
                           select(-HE_obe, - HE_HDL_st2, - HE_chol, - HE_HDL_st2, - HE_TG, - HE_LDL_drct, - HE_HCHOL, - HE_HTG, - HE_HBsAg,
                             - HE_ast, - HE_alt, - HE_hepaB, - ID, - BO1_3, - ID_fam, - id_M, - id_F, - LW_mp_e, - BO1_1, - HE_wc, - HE_wt,
-                            - HE_BMI, - psu, - BO1_2, - BO1)
+                            - HE_BMI, - psu, - BO1_2, - BO1, - fam_rela, - region)
 
 #View(dm_df)
 
@@ -52,11 +56,10 @@ train <- dm_df[intrain,]
 test <- dm_df[-intrain,]
 
 # tree 그리기
-t <- rpart(danger ~ ., data = train, method = 'class', control = rpart.control(minsplit = 2, minbucket = 1, cp = 0.00492))
+t <- rpart(danger ~ ., data = train, method = 'class', control = rpart.control(minsplit = 2, minbucket = 1, cp = 0.0059))
 plot(t)
 text(t)
 
 ptree <- prune(t, cp = t$cptable[which.min(t$cptable[, "xerror"]), "CP"])
-ptree <- prune(t, cp=0.004929575)
 
-fancyRpartPlot(ptree)
+fancyRpartPlot(t)
