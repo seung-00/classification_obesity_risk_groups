@@ -2,8 +2,11 @@ library(dplyr)
 library(foreign)
 library(caret)
 library(rpart)
-library(tree)
+library(rattle)
+library(rpart.plot)
+library(RColorBrewer)
 
+# 3.6.3 사용
 
 df18  <- read.spss("../../Data/Hn18_all.sav", header = T)
 
@@ -37,9 +40,9 @@ dm_df <- dm_df %>% select(-age_month, - wt_pft, - wt_vt, - wt_nn, - wt_pfnt, - w
                           - Y_SUP_YN, - Y_SUP_KD1, - Y_SUP_KD3, - Y_SUP_KD4, - Y_SUP_KD7, - N_BFD_Y) %>%
                           select(-HE_obe, - HE_HDL_st2, - HE_chol, - HE_HDL_st2, - HE_TG, - HE_LDL_drct, - HE_HCHOL, - HE_HTG, - HE_HBsAg,
                             - HE_ast, - HE_alt, - HE_hepaB, - ID, - BO1_3, - ID_fam, - id_M, - id_F, - LW_mp_e, - BO1_1, - HE_wc, - HE_wt,
-                            - HE_BMI, - psu, - BO1_2)
+                            - HE_BMI, - psu, - BO1_2, - BO1)
 
-View(dm_df)
+#View(dm_df)
 
 # test, training셋 분리
 
@@ -49,10 +52,11 @@ train <- dm_df[intrain,]
 test <- dm_df[-intrain,]
 
 # tree 그리기
-t <- rpart(danger ~ ., data = train, method='class')
+t <- rpart(danger ~ ., data = train, method = 'class', control = rpart.control(minsplit = 2, minbucket = 1, cp = 0.00492))
 plot(t)
 text(t)
 
 ptree <- prune(t, cp = t$cptable[which.min(t$cptable[, "xerror"]), "CP"])
-plot(ptree)
-text(ptree)
+ptree <- prune(t, cp=0.004929575)
+
+fancyRpartPlot(ptree)
