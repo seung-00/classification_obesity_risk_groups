@@ -1,9 +1,12 @@
 library(dplyr)
 
 setwd("/Users/seungyoungoh/workspace/classification_obesity_risk_groups/Data")
+#setwd("/.../classification_obesity_risk_groups/Data")
 df18 <- read.csv("국민건강영양조사(2018).csv", header = T)
 dm_df <- df18
 
+a <- df18%>%select(N_DAY)
+head(a)
 # dataframe에 새로운 column을 추가하는 코드
 # HE_obe: 1, 2: 저체중, 정상
 dm_df$is_obe <- ifelse(dm_df$HE_obe == 1 | dm_df$HE_obe == 2, 0, 1)
@@ -41,8 +44,9 @@ dm_df <- dm_df %>% select(-age_month, - wt_pft, - wt_vt, - wt_nn, - wt_pfnt, - w
 
 # 아래부터 오승영이 추가한 data cleansing 코드
 
-src_data <- dm_df %>% select(-X,-mod_d, -DE1_35, -DC11_tp, -DC12_tp, -M_2_et, -BH9_14_4_02, -N_DT_DS, -N_DT_DS, -AC3_3e_01, -AC8_1e_01,
-                          -AC3_3e_02, -LQ4_24, -BH9_14_4_01, -N_DAY)
+# 의미 없는 값이거나(예: 년도나 ID) 문자열 값이고 값들이 일치하지 않는 경우(예: BM14_2, 구강 진료를 받지 못한 상세 이유) 제거
+src_data <- dm_df %>% select(-X,-year, -mod_d, -DE1_35, -DC11_tp, -DC12_tp, -M_2_et, -BH9_14_4_02, -N_DT_DS, -N_DT_DS, -AC3_3e_01, -AC8_1e_01,
+                          ,-AC3_3e_02, -LQ4_24, -BH9_14_4_01, -N_DAY, -BM14_2, -BP2_2, -BO3_11, -EC_wht_6, -BS5_31, -BP2_2, -BD7_67)
 
 src_data <- src_data[,-grep("etc", names(src_data))]
 src_data <- src_data[,-grep("ETC", names(src_data))]
@@ -74,7 +78,7 @@ for (i in 1:length(src_data))
 
 cat(length(src_data)-length(pre_cleaned_data), "개의 결측치가 2000개 이상인 열 제거\n")
 
-# 만약 결측치 1000 이상인 경우를 살펴보면 다음과 같은 열들이 선택된다.
+# 만약 결측치 1000 이상인 경우를 살펴보면 다음과 같은 열들이 추가 선택된다.
 #  "BH1" 건강 검진 수진 여부 
 #  "MH1_yr" 1년간 입원 이용 여부
 #  "MH1_1"  입원 이용 횟수 
@@ -86,4 +90,9 @@ cat(length(src_data)-length(pre_cleaned_data), "개의 결측치가 2000개 이�
 
 cleaned_data <- na.omit(pre_cleaned_data)
 cat(nrow(pre_cleaned_data)-nrow(cleaned_data), "개의 결측치가 포함된 행 제거\n")
-summary(cleaned_data)
+dim(cleaned_data)
+# [1] 2699  586
+
+write.csv(cleaned_data, file="cleaned_data.csv", row.names=FALSE)
+
+
