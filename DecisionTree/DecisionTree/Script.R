@@ -18,7 +18,9 @@ dm_df <- df18
 dm_df$is_obe <- ifelse(dm_df$HE_obe == 1 | dm_df$HE_obe == 2, 0, 1) # dataframe에 새로운 column을 추가하는 코드
 
 # 우리의 예측에 해당하지 않는, 체중 변화 여부를 무응답하거나 소아인 경우를 제외
+# 콜레스테롤과 같은 비만자의 현재 신체 건강을 나타내는 수치가 기준이 되지 않도록 비만인 사람들만 고려
 dm_df <- dm_df %>% filter(dm_df$BO1_1 != 8 & dm_df$BO1_1 != 9)
+dm_df <- filter(dm_df, dm_df$is_obe == 1)
 
 # danger가 No이면 정상, Yes이면 위험
 dm_df$danger <- ifelse(dm_df$is_obe == 1 & dm_df$BO1_1 == 3, "Yes", "No")
@@ -60,6 +62,10 @@ t <- rpart(danger ~ ., data = train, method = 'class', control = rpart.control(m
 plot(t)
 text(t)
 
+# 트리 가지치기
 ptree <- prune(t, cp = t$cptable[which.min(t$cptable[, "xerror"]), "CP"])
 
-fancyRpartPlot(t)
+fancyRpartPlot(ptree)
+
+pred <- predict(ptree, test, type="class")
+confusionMatrix(pred, as.factor(test$danger))
