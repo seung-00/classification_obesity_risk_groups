@@ -5,6 +5,7 @@ library(rpart)
 library(rattle)
 library(rpart.plot)
 library(RColorBrewer)
+library(ROCR)
 
 # R 3.6.3 사용
 
@@ -46,7 +47,7 @@ dm_df <- dm_df %>% select(-age_month, - wt_pft, - wt_vt, - wt_nn, - wt_pfnt, - w
                           - Y_SUP_YN, - Y_SUP_KD1, - Y_SUP_KD3, - Y_SUP_KD4, - Y_SUP_KD7, - N_BFD_Y, - wt_hs) %>%
                           select(-HE_obe, - HE_HDL_st2, - HE_chol, - HE_HDL_st2, - HE_TG, - HE_LDL_drct, - HE_HCHOL, - HE_HTG, - HE_HBsAg,
                             - HE_ast, - HE_alt, - HE_hepaB, - ID, - BO1_3, - ID_fam, - id_M, - id_F, - LW_mp_e, - BO1_1, - HE_wc, - HE_wt,
-                            - HE_BMI, - psu, - BO1_2, - BO1, - fam_rela, - region)
+                            - HE_BMI, - psu, - BO1_2, - BO1, - fam_rela, - region, - N_DT_DS)
 
 #View(dm_df)
 
@@ -56,6 +57,15 @@ set.seed(1000)
 intrain <- createDataPartition(y=dm_df$danger, p = 0.7, list = F)
 train <- dm_df[intrain,]
 test <- dm_df[-intrain,]
+
+# Train 셋을 Yes와 No로 분리
+train_no <- train %>% filter(train$danger == "No")
+train_yes <- train %>% filter(train$danger == "Yes")
+
+# Train 셋을 리샘플링(Yes와 No를 1:1 비율로)
+train_no_ran_sam <- sample(1:nrow(train_no), nrow(train_yes))
+train_no <- train_no[train_no_ran_sam, ]
+train <- rbind(train_no, train_yes)
 
 # tree 그리기
 t <- rpart(danger ~ ., data = train, method = 'class', control = rpart.control(minsplit = 2, minbucket = 1, cp = 0.0059))
@@ -67,5 +77,11 @@ ptree <- prune(t, cp = t$cptable[which.min(t$cptable[, "xerror"]), "CP"])
 
 fancyRpartPlot(ptree)
 
-pred <- predict(ptree, test, type="class")
-confusionMatrix(pred, as.factor(test$danger))
+# 모든 cp를 돌며 test 셋에 대한 confusion matrix를 구한다
+for (i in 1:nrow(t$cptable)) {
+    print(i)
+    ptree <- prune(t, cp = t$cptable[i, "CP"])
+
+    pred <- predict(ptree, test, type = "class")
+    print(confusionMatrix(pred, as.factor(test$danger)))
+}
