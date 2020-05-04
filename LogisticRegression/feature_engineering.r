@@ -37,9 +37,6 @@ summary(Model_forward)
 #     AC1_yr , MO4_11 , MO4_12 , HE_sbp1 , edu , BM8 , house , 
 #     DH3_pt , BS12_2 , DH4_ag , HE_HPfh1 , HE_Uph , N_MUFA , DF2_ag , BP_PHQ_8 , N_PROT , N_NIAC , live_t , LQ4_13)
 
-
-####  missing value treatment
-
 selected_data <- cleaned_data <- cleaned_data%>% select(age , HE_Uacid , BO2_1 , BP_PHQ_5 , HE_dbp3 , 
     HE_DM , DI6_ag , BD7_64 , BA2_12 , BH1 , BP16_22 , LQ4_07 , 
     DJ2_dg , HE_Bplt , BA2_2_1 , BD7_5 , BS12_31 , O_chew_d , 
@@ -49,6 +46,12 @@ selected_data <- cleaned_data <- cleaned_data%>% select(age , HE_Uacid , BO2_1 ,
     DE1_pt , DE1_ag , HE_PLS , BM2_1 , N_VITC , DH3_ag , DC4_dg , 
     AC1_yr , MO4_11 , MO4_12 , HE_sbp1 , edu , BM8 , house , 
     DH3_pt , BS12_2 , DH4_ag , HE_HPfh1 , HE_Uph , N_MUFA , DF2_ag , BP_PHQ_8 , N_PROT , N_NIAC , live_t , LQ4_13, danger)
+
+dim(selected_data)
+# [1] 2699   65
+
+
+####  missing value treatment
 
 # 모름: 9
 colname_subset1 <- list("BO2_1","BP_PHQ_5","BD7_64","BA2_12","BH1","LQ4_07","BD7_64","BA2_12","BH1","LQ4_07","DJ2_dg","BA2_2_1","BD7_5","BS12_31","LQ4_05","L_DN_WHO","DH4_dg","L_BR_TO","DC3_dg","LK_EDU","LQ_4EQL","BS5_1","T_Q_HR1","DF2_pr","DE1_pt","BM2_1","DC4_dg","AC1_yr","MO4_11","MO4_12","BM8","house","DH3_pt","BS12_2","HE_HPfh1","BP_PHQ_8","live_t","LQ4_13")
@@ -92,12 +95,14 @@ selected_data["ainc_1"] <- apply(as.data.frame(selected_data["ainc_1"]), 2, func
 table(is.na(selected_data))
 dim(selected_data)
 
-# [1] 2699   65
-# 로지스틱 회귀 돌려본다
-glm_fit <- glm(danger~.,data = selected_data, family = binomial(link = 'logit'))
+
 
 ####  multicollinearity(다중공선성) problem
 # VIF 수식의 값이 10 이상 이면 해당 변수가 다중공선성이 존재하는 것으로 판단한다.
+
+# 로지스틱 회귀 돌려본다
+glm_fit <- glm(danger~.,data = selected_data, family = binomial(link = 'logit'))
+
 
 vif(glm_fit)
 #         age    HE_Uacid       BO2_1    BP_PHQ_5     HE_dbp3       HE_DM 
@@ -178,12 +183,15 @@ stratified_sampling <- strata(selected_data, stratanames = c("danger"), size =c(
                               method="srswor")
 
 selected_data <- getdata(selected_data, stratified_sampling)
-dim(selected_data)
-#[1] 960  61
-str(selected_data)
 
+str(selected_data)
 # except useless results of sampling
 selected_data<-selected_data%>%select(-ID_unit,-Prob,-Stratum)
+
+table(selected_data$danger)
+#   0   1 
+# 480 480 
+
 dim(selected_data)
 # [1] 960  58
 table(is.na(selected_data))

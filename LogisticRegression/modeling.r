@@ -27,6 +27,10 @@ input_train <- createDataPartition(y=lasso_data$danger, p=0.8, list=FALSE)
 train_dataset <- lasso_data[input_train,]
 test_dataset <- lasso_data[-input_train,]
 
+dim(train_dataset)
+dim(test_dataset)
+
+# lasso 모델링, 교차검증
 # auc 계산
 lasso_model <- cv.glmnet( x=data.matrix(train_dataset[,-length(train_dataset)]), y = train_dataset[,length(train_dataset)],
 family = "binomial" , type.measure = "auc",alpha=1, nfolds=5)
@@ -35,7 +39,7 @@ print(lasso_model)
 plot(lasso_model)
 
 lasso_model <- cv.glmnet( x=data.matrix(train_dataset[,-length(train_dataset)]), y = train_dataset[,length(train_dataset)],
-family = "binomial" , type.measure = "class",alpha=1, nfolds=5)
+family = "binomial" , type.measure = "mse",alpha=1, nfolds=5)
 
 print(lasso_model)
 plot(lasso_model)
@@ -44,13 +48,14 @@ plot(lasso_model)
 lasso_pred <- predict(lasso_model, newx=data.matrix(test_dataset[,-length(test_dataset)]),
                       s=lasso_model$lambda.min, type= "class", levels=c(1,0))
 
+
 table(real = test_dataset[,length(test_dataset)],pred= factor((lasso_pred), levels = c(1,0)))
 
 #     pred
 # real  1  0
-#    1 63 33
-#    0 36 60
-   
+#    1 64 32
+#    0 29 67
+
 confusionMatrix(table(factor(test_dataset[,length(test_dataset)], levels=c(1,0)),factor((lasso_pred), levels = c(1,0))))
 
 #                Accuracy : 0.6406          
