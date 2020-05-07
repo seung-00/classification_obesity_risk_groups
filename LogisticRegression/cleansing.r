@@ -5,23 +5,23 @@ setwd("/Users/seungyoungoh/workspace/classification_obesity_risk_groups/Data")
 df18 <- read.csv("국민건강영양조사(2018).csv", header = T)
 dm_df <- df18
 
-a <- df18%>%select(N_DAY)
-head(a)
+
+# 데이터에서 위험군/정상군 분리
+dm_df$is_obe <- ifelse(dm_df$HE_obe == 1 | dm_df$HE_obe == 2, 0, 1) 
+
 # dataframe에 새로운 column을 추가하는 코드
-# HE_obe: 1, 2: 저체중, 정상
-dm_df$is_obe <- ifelse(dm_df$HE_obe == 1 | dm_df$HE_obe == 2, 0, 1)
-
 # 우리의 예측에 해당하지 않는, 체중 변화 여부를 무응답하거나 소아인 경우를 제외
-# BO1_1 == 8, 9 인 경우
+# 콜레스테롤과 같은 비만자의 현재 신체 건강을 나타내는 수치가 기준이 되지 않도록 비만인 사람들만 고려
 dm_df <- dm_df %>% filter(dm_df$BO1_1 != 8 & dm_df$BO1_1 != 9)
+dm_df <- filter(dm_df, dm_df$is_obe == 1)
 
-# danger가 No이면 정상, Yes이면 위험
-# BO1_1 == 3 : 체중 증가
-dm_df$danger <- ifelse(dm_df$is_obe == 1 & dm_df$BO1_1 == 3, 1, 0)
+# danger가 0이면 정상, 1이면 위험
+dm_df$danger <- ifelse(dm_df$is_obe == 1 & dm_df$BO1_1 == 3, 0, 1)
 
-#table(is.na(dm_df))
 # 필요없어진 is_obe 변수를 제거,
-dm_df <- dm_df %>% select(-is_obe)
+# danger가 NA(결측)인 데이터를 제거
+dm_df <- dm_df %>% dplyr::select(-is_obe) %>%
+    dplyr::filter(!is.na(dm_df$danger))
 
 
 # 결측치가 많이 발견되어 검사에 무리를 준 특성을 제거
@@ -45,8 +45,7 @@ dm_df <- dm_df %>% select(-age_month, - wt_pft, - wt_vt, - wt_nn, - wt_pfnt, - w
 # 아래부터 오승영이 추가한 data cleansing 코드
 
 # 의미 없는 값이거나(예: 년도나 ID) 문자열 값이고 값들이 일치하지 않는 경우(예: BM14_2, 구강 진료를 받지 못한 상세 이유) 제거
-src_data <- dm_df %>% select(-X,-year, -mod_d, -DE1_35, -DC11_tp, -DC12_tp, -M_2_et, -BH9_14_4_02, -N_DT_DS, -N_DT_DS, -AC3_3e_01, -AC8_1e_01,
-                          ,-AC3_3e_02, -LQ4_24, -BH9_14_4_01, -N_DAY, -BM14_2, -BP2_2, -BO3_11, -EC_wht_6, -BS5_31, -BP2_2, -BD7_67)
+src_data <- dm_df %>% select(-X,-year, -mod_d, -DE1_35, -DC11_tp, -DC12_tp, -M_2_et, -BH9_14_4_02, -N_DT_DS, -N_DT_DS, -AC3_3e_01, -AC8_1e_01, -AC3_3e_02, -LQ4_24, -BH9_14_4_01, -N_DAY, -BM14_2, -BP2_2, -BO3_11, -EC_wht_6, -BS5_31, -BP2_2, -BD7_67, -BS12_35)
 
 src_data <- src_data[,-grep("etc", names(src_data))]
 src_data <- src_data[,-grep("ETC", names(src_data))]
@@ -91,8 +90,7 @@ cat(length(src_data)-length(pre_cleaned_data), "개의 결측치가 2000개 이�
 cleaned_data <- na.omit(pre_cleaned_data)
 cat(nrow(pre_cleaned_data)-nrow(cleaned_data), "개의 결측치가 포함된 행 제거\n")
 dim(cleaned_data)
-# [1] 2699  586
+# [1] 1614  579
+
 
 write.csv(cleaned_data, file="cleaned_data.csv", row.names=FALSE)
-
-

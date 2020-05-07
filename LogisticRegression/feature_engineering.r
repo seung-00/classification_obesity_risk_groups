@@ -8,7 +8,6 @@ library(glmnet)
 library(prettyR)
 
 
-
 setwd("/Users/seungyoungoh/workspace/classification_obesity_risk_groups/Data")
 cleaned_data <- read.csv("cleaned_data.csv", header=TRUE, stringsAsFactors = TRUE, na.strings=NA)
 
@@ -17,6 +16,7 @@ cleaned_data <- read.csv("cleaned_data.csv", header=TRUE, stringsAsFactors = TRU
 # 팩터의 순서를 1,0으로 만들어 줘야함. 그래야 positive = 1, negative = 0 으로 glm이 인식함
 # danger 팩터로
 
+table(is.na(cleaned_data))
 
 # 전진 선택
 Model_full <- glm(danger~.,family=binomial(link = 'logit'),data=cleaned_data)
@@ -26,76 +26,99 @@ Model_non <- glm(danger~1,family=binomial(link = 'logit'),data=cleaned_data)
 Model_forward <- step(Model_non,list(lower=Model_non,upper=Model_full),direction = "forward")
 summary(Model_forward)
 
-# 전진 선택 결과
-# glm(formula = danger ~ age , HE_Uacid , BO2_1 , BP_PHQ_5 , HE_dbp3 , 
-#     HE_DM , DI6_ag , BD7_64 , BA2_12 , BH1 , BP16_22 , LQ4_07 , 
-#     DJ2_dg , HE_Bplt , BA2_2_1 , BD7_5 , BS12_31 , O_chew_d , 
-#     HE_mens , GS_mea_l_1 , LQ4_05 , HE_Upro , L_DN_WHO , ainc_1 , 
-#     DH4_dg , L_BR_TO , HE_Ucot , DC3_dg , LK_EDU , BE8_2 , BS3_3 , 
-#     occp , HE_glu , LQ_4EQL , BS5_1 , EC_pedu_2 , T_Q_HR1 , DF2_pr , 
-#     DE1_pt , DE1_ag , HE_PLS , BM2_1 , N_VITC , DH3_ag , DC4_dg , 
-#     AC1_yr , MO4_11 , MO4_12 , HE_sbp1 , edu , BM8 , house , 
-#     DH3_pt , BS12_2 , DH4_ag , HE_HPfh1 , HE_Uph , N_MUFA , DF2_ag , BP_PHQ_8 , N_PROT , N_NIAC , live_t , LQ4_13)
 
-selected_data <- cleaned_data <- cleaned_data%>% select(age , HE_Uacid , BO2_1 , BP_PHQ_5 , HE_dbp3 , 
-    HE_DM , DI6_ag , BD7_64 , BA2_12 , BH1 , BP16_22 , LQ4_07 , 
-    DJ2_dg , HE_Bplt , BA2_2_1 , BD7_5 , BS12_31 , O_chew_d , 
-    HE_mens , GS_mea_l_1 , LQ4_05 , HE_Upro , L_DN_WHO , ainc_1 , 
-    DH4_dg , L_BR_TO , HE_Ucot , DC3_dg , LK_EDU , BE8_2 , BS3_3 , 
-    occp , HE_glu , LQ_4EQL , BS5_1 , EC_pedu_2 , T_Q_HR1 , DF2_pr , 
-    DE1_pt , DE1_ag , HE_PLS , BM2_1 , N_VITC , DH3_ag , DC4_dg , 
-    AC1_yr , MO4_11 , MO4_12 , HE_sbp1 , edu , BM8 , house , 
-    DH3_pt , BS12_2 , DH4_ag , HE_HPfh1 , HE_Uph , N_MUFA , DF2_ag , BP_PHQ_8 , N_PROT , N_NIAC , live_t , LQ4_13, danger)
+# 전진 선택 결과
+# glm(formula = danger ~ age , sex , BP_PHQ_5 , L_DN , BS3_3 , 
+#     BS12_31 , BD7_5 , BA1_3 , N_VA_RAE , DH2_dg , BP_PHQ_6 , 
+#     DI1_pt , DJ2_dg , DI6_pt , DI6_ag , DI3_2 , allownc , BA2_13 , 
+#     DC3_ag , HE_Uket , HE_Uph , ainc_1 , BE3_33 , HE_DMfh3 , 
+#     HE_Uro , DH6_ag , DH6_pt , BM13_1 , BE3_31 , BD2_14 , HE_Upro , 
+#     DE1_pt , DE1_pr , BP7 , BP16_23 , BP16_21 , BP_PHQ_7 , T_Q_HR1 , 
+#     DE2_dg , npins , OR1_2 , edu , EC_pedu_2 , HE_hsCRP , DC2_dg , 
+#     HE_UCREA , LQ2_mn , BA2_2_4 , Total_slp_wd , BP16_22 , BP_PHQ_9 , 
+#     BA2_22 , HE_DMdg , BE3_76 , BE3_78 , BH1 , BM2_2 , DJ8_pt , 
+#     DJ8_pr , L_BR_WHO , DF2_pr , DI1_2 , mh_stress , BE8_2 , 
+#     BP2 , T_NQ_OCP_T , HE_fst, family = binomial(link = "logit"), 
+#     data = cleaned_data)
+
+
+selected_data <- cleaned_data <- cleaned_data%>% select(age , sex , BP_PHQ_5 , L_DN , BS3_3 , 
+    BS12_31 , BD7_5 , BA1_3 , N_VA_RAE , DH2_dg , BP_PHQ_6 , 
+    DI1_pt , DJ2_dg , DI6_pt , DI6_ag , DI3_2 , allownc , BA2_13 , 
+    DC3_ag , HE_Uket , HE_Uph , ainc_1 , BE3_33 , HE_DMfh3 , 
+    HE_Uro , DH6_ag , DH6_pt , BM13_1 , BE3_31 , BD2_14 , HE_Upro , 
+    DE1_pt , DE1_pr , BP7 , BP16_23 , BP16_21 , BP_PHQ_7 , T_Q_HR1 , 
+    DE2_dg , npins , OR1_2 , edu , EC_pedu_2 , HE_hsCRP , DC2_dg , 
+    HE_UCREA , LQ2_mn , BA2_2_4 , Total_slp_wd , BP16_22 , BP_PHQ_9 , 
+    BA2_22 , HE_DMdg , BE3_76 , BE3_78 , BH1 , BM2_2 , DJ8_pt , 
+    DJ8_pr , L_BR_WHO , DF2_pr , DI1_2 , mh_stress , BE8_2 , 
+    BP2 , T_NQ_OCP_T , HE_fst, danger)
 
 dim(selected_data)
-# [1] 2699   65
-
+# [1] 1614   68
+glimpse(selected_data)
 
 ####  missing value treatment
 
-# 모름: 9
-colname_subset1 <- list("BO2_1","BP_PHQ_5","BD7_64","BA2_12","BH1","LQ4_07","BD7_64","BA2_12","BH1","LQ4_07","DJ2_dg","BA2_2_1","BD7_5","BS12_31","LQ4_05","L_DN_WHO","DH4_dg","L_BR_TO","DC3_dg","LK_EDU","LQ_4EQL","BS5_1","T_Q_HR1","DF2_pr","DE1_pt","BM2_1","DC4_dg","AC1_yr","MO4_11","MO4_12","BM8","house","DH3_pt","BS12_2","HE_HPfh1","BP_PHQ_8","live_t","LQ4_13")
+# 모름: 9, 최빈값
+colname_subset_mode1 <- list("BP_PHQ_5","BS12_31","BD7_5","BA1_3","DH2_dg","BP_PHQ_6","DI1_pt","DJ2_dg","DI6_pt","DI3_2","allownc","BA2_13","HE_DMfh3","DH6_pt","BM13_1","DE1_pt","DE1_pr","BP7","BP_PHQ_7","T_Q_HR1","DE2_dg","npins","OR1_2","DC2_dg","BP_PHQ_9","BA2_22","BE3_76","BH1","BM2_2","DJ8_pt","DJ8_pr","L_BR_WHO","DF2_pr","DI1_2")
 
-# 모름: 99
-colname_subset2 <- list("BP16_22","BP16_22","BE8_2","BS3_3","EC_pedu_2")
+# 모름: 99, 최빈값
+colname_subset_mode2 <- list("BE3_31","EC_pedu_2","BP16_22","BP2")
 
-# 모름: 999
-colname_subset3 <- list("DI6_ag","DI6_ag","DE1_ag","DH3_ag","DH4_ag","DF2_ag")
+# 모름: 99, 평균값
+colname_subset_mean1 <- list("BS3_3","BE3_33","BP16_23","BP16_21","LQ2_mn","BE3_78","BE8_2")
 
-# 모름: 999999 ainc_1
+# 모름: 999, 평균값
+colname_subset_mean2 <- list("DI6_ag","DC3_ag","DH6_ag","BA2_2_4","T_NQ_OCP_T")
+
 
 # 모름이 9인 설문조사 결과를 최빈값 대체
 na_val <- 9
-for (i in 1:length(colname_subset2))
+for (i in 1:length(colname_subset_mode1))
 {
-    col_name <- as.character(colname_subset2[i])
+    col_name <- as.character(colname_subset_mode1[i])
     selected_data[col_name] <- apply(as.data.frame(selected_data[col_name]), 2, function(x) as.integer(gsub(na_val, Mode(x), x)))
 }
 
 # 모름이 99인 설문조사 결과를 최빈값 대체
 na_val <- 99
-for (i in 1:length(colname_subset2))
+for (i in 1:length(colname_subset_mode2))
 {
-    col_name <- as.character(colname_subset2[i])
+    col_name <- as.character(colname_subset_mode2[i])
     selected_data[col_name] <- apply(as.data.frame(selected_data[col_name]), 2, function(x) as.integer(gsub(na_val, Mode(x), x)))
 }
 
-# 모름이 999인 설문조사 결과를 최빈값 대체
+# 모름이 99인 설문조사 결과를 평균값 대체
+na_val <- 99
+for (i in 1:length(colname_subset_mean1))
+{
+    col_name <- as.character(colname_subset_mean1[i])
+    selected_data[col_name] <- apply(as.data.frame(selected_data[col_name]), 2, function(x) as.integer(gsub(na_val, mean(x), x)))
+}
+
+
+# 모름이 999인 설문조사 결과를 평균값 대체
 na_val <- 999
-for (i in 1:length(colname_subset3))
+for (i in 1:length(colname_subset_mean2))
 {
-    col_name <- as.character(colname_subset3[i])
-    selected_data[col_name] <- apply(as.data.frame(selected_data[col_name]), 2, function(x) as.integer(gsub(na_val, Mode(x), x)))
+    col_name <- as.character(colname_subset_mean2[i])
+    selected_data[col_name] <- apply(as.data.frame(selected_data[col_name]), 2, function(x) as.integer(gsub(na_val, mean(x), x)))
 }
 
-# 모름: 999999인 설문조사 결과를 최빈값 대체
-selected_data["ainc_1"] <- apply(as.data.frame(selected_data["ainc_1"]), 2, function(x) as.integer(gsub(na_val, Mode(x), x)))
+# 모름이 9999인 설문조사 결과를 평균값 대체
+na_val <- 9999
+col_name <- "Total_slp_wd"
+selected_data[col_name] <- apply(as.data.frame(selected_data[col_name]), 2, function(x) as.integer(gsub(na_val, mean(x), x)))
+
+# 모름이 999999인 설문조사 결과를 평균값 대체
+na_val <- 999999
+col_name <- "ainc_1"
+selected_data[col_name] <- apply(as.data.frame(selected_data[col_name]), 2, function(x) as.integer(gsub(na_val, mean(x), x)))
 
 
 table(is.na(selected_data))
 dim(selected_data)
-
-
 
 ####  multicollinearity(다중공선성) problem
 # VIF 수식의 값이 10 이상 이면 해당 변수가 다중공선성이 존재하는 것으로 판단한다.
@@ -105,69 +128,77 @@ glm_fit <- glm(danger~.,data = selected_data, family = binomial(link = 'logit'))
 
 
 vif(glm_fit)
-#         age    HE_Uacid       BO2_1    BP_PHQ_5     HE_dbp3       HE_DM 
-#    2.896128    1.674702    1.104837    1.186391    2.299413    2.845215 
-#      DI6_ag      BD7_64      BA2_12         BH1     BP16_22      LQ4_07 
-#    1.015569    1.050265    1.396731    1.160192    1.037417 2821.131467 
-#      DJ2_dg     HE_Bplt     BA2_2_1       BD7_5     BS12_31    O_chew_d 
-#    1.016513    1.108738    1.103464    1.000004    1.060028    1.337961 
-#     HE_mens  GS_mea_l_1      LQ4_05     HE_Upro    L_DN_WHO      ainc_1 
-#    3.893324    3.164789 2358.953265    1.131044    1.127328    1.276165 
-#      DH4_dg     L_BR_TO     HE_Ucot      DC3_dg      LK_EDU       BE8_2 
-#   22.327465    1.268365    2.579397    1.000000    1.026491    1.031649 
-#       BS3_3        occp      HE_glu     LQ_4EQL       BS5_1   EC_pedu_2 
-#    1.328224    1.315437    2.631464    1.279522    2.961764    2.129319 
-#     T_Q_HR1      DF2_pr      DE1_pt      DE1_ag      HE_PLS       BM2_1 
-#    1.166597  210.309755 1372.532445 1373.196667    1.145302    1.163393 
-#      N_VITC      DH3_ag      DC4_dg      AC1_yr      MO4_11      MO4_12 
-#    1.057949   73.950212    1.016960    1.032374  164.399678  164.006320 
-#     HE_sbp1         edu         BM8       house      DH3_pt      BS12_2 
-#    2.520685    1.971696    1.357826    1.203329   73.703535    1.404940 
-#      DH4_ag    HE_HPfh1      HE_Uph      N_MUFA      DF2_ag    BP_PHQ_8 
-#   22.283937    1.069685    1.059878    1.991934  211.212132    1.228831 
-#      N_PROT      N_NIAC      live_t      LQ4_13 
-#    3.997048    3.505984    1.061098 2550.799553 
 
-# LQ4_07 2821.131467 활동제한 사유: 당뇨병 -> 제거
-# LQ4_05 2358.953265 활동제한 사유: 호흡 문제 -> 제거
-# LQ4_13 2550.799553 활동제한 사유: 청각 문제
-# DH4_dg 22.327465 중이염 의사진단 여부
-# DH4_ag 22.283937 중이염 진단시기 -> 제거
-# DE1_pt 1372.532445 당뇨병 치료
-# DE1_ag 1373.196667 당뇨병 진단시기 -> 제거
-# MO4_11 164.399678 진료항목: 발치 또는 구강내수술 -> 제거
-# MO4_12 164.006320 진로항목: 다쳐서 빠지거나 부러진 치아 치료
-# DH3_ag 73.950212 녹내장 진단시기 -> 제거
-# DH3_pt 73.703535 녹내장 치료
-# DF2_pr 210.309755 우울증 현재 유병 여부
-# DF2_ag 211.212132 우울증 진단 시기 -> 제거
+#          age          sex     BP_PHQ_5         L_DN        BS3_3      BS12_31 
+# 3.330541e+00 1.610554e+00 1.280987e+00 1.061425e+00 1.052161e+00 1.055157e+00 
+#        BD7_5        BA1_3     N_VA_RAE       DH2_dg     BP_PHQ_6       DI1_pt 
+# 9.999993e-01 1.117827e+00 1.075456e+00 1.274931e+00 1.664840e+00 2.666156e+01 
+#       DJ2_dg       DI6_pt       DI6_ag        DI3_2      allownc       BA2_13 
+# 1.044233e+00 8.687129e+08 8.687157e+08 1.141833e+00 1.154925e+00 1.108293e+00 
+#       DC3_ag      HE_Uket       HE_Uph       ainc_1       BE3_33     HE_DMfh3 
+# 9.999999e-01 1.072796e+00 1.128907e+00 1.204300e+00 1.729595e+00 1.046702e+00 
+#       HE_Uro       DH6_ag       DH6_pt       BM13_1       BE3_31       BD2_14 
+# 1.037144e+00 2.384905e+02 2.384905e+02 1.087392e+00 1.791750e+00 1.209803e+00 
+#      HE_Upro       DE1_pt       DE1_pr          BP7      BP16_23      BP16_21 
+# 1.265342e+00 9.702801e+09 9.702801e+09 1.321742e+00 3.551216e+00 1.919804e+00 
+#     BP_PHQ_7      T_Q_HR1       DE2_dg        npins        OR1_2          edu 
+# 1.155254e+00 1.142967e+00 1.104230e+00 1.225817e+00 1.160285e+00 1.970023e+00 
+#    EC_pedu_2     HE_hsCRP       DC2_dg     HE_UCREA       LQ2_mn      BA2_2_4 
+# 1.832458e+00 1.057927e+00 1.000000e+00 1.697498e+00 1.066598e+00 1.081784e+00 
+# Total_slp_wd      BP16_22     BP_PHQ_9       BA2_22      HE_DMdg       BE3_76 
+# 2.019039e+00 1.059128e+00 1.663049e+00 1.107452e+00 4.799423e+01 6.970761e+00 
+#       BE3_78          BH1        BM2_2       DJ8_pt       DJ8_pr     L_BR_WHO 
+# 6.904309e+00 1.147717e+00 1.149127e+00 2.009978e+02 2.004095e+02 1.157595e+00 
+#       DF2_pr        DI1_2    mh_stress        BE8_2          BP2   T_NQ_OCP_T 
+# 1.266729e+00 2.708442e+01 1.240109e+00 1.039885e+00 1.193954e+00 1.094660e+00 
+#       HE_fst 
+# 1.075512e+00 
 
-selected_data <- selected_data %>% select(-LQ4_07, -LQ4_05, -DH4_ag, -DE1_ag, -MO4_11, -DH3_ag, -DF2_ag)
+
+# DI1_pt	2.67E+01	고혈압 치료
+# DI1_2     2.71E+01	혈압조절제 복용 -> 제거
+# DI6_pt	8.69E+08	협심증 치료
+# DI6_ag	8.69E+08	협심증 진단시기 -> 제거
+# DH6_pt	2.38E+02	황반변성 치료
+# DH6_ag	2.38E+02	황반변성 진단시기 -> 제거
+# DE1_pt	9.70E+09	당뇨병 치료
+# DE1_pr	9.70E+09	당뇨병현재유병여부 -> 제거
+# HE_DMdg	4.80E+01	당뇨병 의사진단 여부 -> 제거
+# DJ8_pt	2.01E+02	알레르기비염 치료
+# DJ8_pr	2.00E+02	알레르기비염 현재 유병 여부 -> 제거
+
+selected_data <- selected_data %>% select(-DI1_2, -DI6_ag, -DH6_ag, -DE1_pr, -HE_DMdg, -DJ8_pr)
+
 
 dim(selected_data)
-# [1] 2699   58
+# [1] 1614   62
+
 
 glm_fit2 <- glm(danger~.,data = selected_data, family = binomial(link = 'logit'))
 
 vif(glm_fit2)
-# age   HE_Uacid      BO2_1   BP_PHQ_5    HE_dbp3      HE_DM     DI6_ag 
-# 2.906532   1.664304   1.100664   1.186024   2.281322   2.750362   1.013166 
-# BD7_64     BA2_12        BH1    BP16_22     DJ2_dg    HE_Bplt    BA2_2_1 
-# 1.048822   1.392409   1.153392   1.031837   1.013404   1.101723   1.099861 
-# BD7_5    BS12_31   O_chew_d    HE_mens GS_mea_l_1    HE_Upro   L_DN_WHO 
-# 1.000004   1.057483   1.335254   3.875835   3.156683   1.127459   1.123364 
-# ainc_1     DH4_dg    L_BR_TO    HE_Ucot     DC3_dg     LK_EDU      BE8_2 
-# 1.276658   1.047101   1.262729   2.575345   1.000000   1.028104   1.029108 
-# BS3_3       occp     HE_glu    LQ_4EQL      BS5_1  EC_pedu_2    T_Q_HR1 
-# 1.324365   1.314521   2.540000   1.282202   2.966949   2.130381   1.143182 
-# DF2_pr     DE1_pt     HE_PLS      BM2_1     N_VITC     DC4_dg     AC1_yr 
-# 1.139078   1.683707   1.137895   1.158937   1.057315   1.014023   1.025626 
-# MO4_12    HE_sbp1        edu        BM8      house     DH3_pt     BS12_2 
-# 1.053911   2.504689   1.971907   1.353739   1.200947   1.038792   1.406580 
-# HE_HPfh1     HE_Uph     N_MUFA   BP_PHQ_8     N_PROT     N_NIAC     live_t 
-# 1.052378   1.051543   1.986917   1.206423   3.983761   3.485590   1.057399 
-# LQ4_13 
-# 1.315353 
+#      age          sex     BP_PHQ_5         L_DN        BS3_3      BS12_31 
+# 3.338492     1.599755     1.281979     1.059849     1.052566     1.036126 
+#    BD7_5        BA1_3     N_VA_RAE       DH2_dg     BP_PHQ_6       DI1_pt 
+# 1.000005     1.114409     1.072869     1.292253     1.657380     1.395050 
+#   DJ2_dg       DI6_pt        DI3_2      allownc       BA2_13       DC3_ag 
+# 1.042961     1.041365     1.154145     1.138021     1.112802     1.000000 
+#  HE_Uket       HE_Uph       ainc_1       BE3_33     HE_DMfh3       HE_Uro 
+# 1.069123     1.124241     1.195174     1.741238     1.043940     1.036578 
+#   DH6_pt       BM13_1       BE3_31       BD2_14      HE_Upro       DE1_pt 
+# 1.081742     1.082691     1.804948     1.203066     1.266906     1.204403 
+#      BP7      BP16_23      BP16_21     BP_PHQ_7      T_Q_HR1       DE2_dg 
+# 1.325023     3.540227     1.901976     1.150187     1.141445     1.090498 
+#    npins        OR1_2          edu    EC_pedu_2     HE_hsCRP       DC2_dg 
+# 1.226606     1.160095     1.954188     1.834980     1.065662     1.000000 
+# HE_UCREA       LQ2_mn      BA2_2_4 Total_slp_wd      BP16_22     BP_PHQ_9 
+# 1.703174     1.059472     1.079963     2.007131     1.061109     1.620799 
+#   BA2_22       BE3_76       BE3_78          BH1        BM2_2       DJ8_pt 
+# 1.106038     6.939122     6.880432     1.147442     1.149798     1.094493 
+# L_BR_WHO       DF2_pr    mh_stress        BE8_2          BP2   T_NQ_OCP_T 
+# 1.141871     1.272977     1.245535     1.040722     1.209137     1.087167 
+#   HE_fst 
+# 1.073204 
 
 
 ####  imbalanced data problem
@@ -175,8 +206,7 @@ vif(glm_fit2)
 # 종속변수의 1, 0 개수를 샌다
 table(selected_data$danger)
 #    0    1 
-# 2212  487 
-
+#  487 1127 
 
 # sampling
 stratified_sampling <- strata(selected_data, stratanames = c("danger"), size =c(480,480),
@@ -194,6 +224,7 @@ table(selected_data$danger)
 
 dim(selected_data)
 # [1] 960  58
+
 table(is.na(selected_data))
 
 write.csv(selected_data, file="selected_data.csv", row.names=FALSE)
