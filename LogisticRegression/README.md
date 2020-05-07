@@ -166,8 +166,12 @@ dim(cleaned_data)
 * embedded 기법인 lasso 모델링
 
   * cv.glmnet() 사용
+
   * alpha =1, nfolds =5, type measure = auc
+
   * lasso 로지스틱 회귀 분석, 교차검증
+
+    <img src="https://user-images.githubusercontent.com/46865281/81319264-61fd3880-90ca-11ea-979c-926ac559f155.png" width="500" height="500">
 
 * 평가
 
@@ -206,8 +210,6 @@ dim(cleaned_data)
     # [1] 0.7203776
     ```
 
-    ![title](https://user-images.githubusercontent.com/46865281/81317716-26fa0580-90c8-11ea-968a-f028464460d0.png){: width="300" height="300"}
-
-    
+    ​    <img src="https://user-images.githubusercontent.com/46865281/81317716-26fa0580-90c8-11ea-968a-f028464460d0.png" width="500" height="500">
 
     

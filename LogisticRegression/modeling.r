@@ -51,16 +51,12 @@ confusionMatrix(table(factor(test_dataset[,length(test_dataset)], levels=c(1,0))
 #      1  0
 #   1 68 28
 #   0 26 70             
-
 #                Accuracy : 0.7188          
 #                  95% CI : (0.6495, 0.7811)
 #     No Information Rate : 0.5104          
-#     P-Value [Acc > NIR] : 3.25e-09        
-                               
+#     P-Value [Acc > NIR] : 3.25e-09               
 #                   Kappa : 0.4375          
-                                          
 #  Mcnemar's Test P-Value : 0.8918          
-                                          
 #             Sensitivity : 0.7234          
 #             Specificity : 0.7143          
 #          Pos Pred Value : 0.7083          
@@ -69,13 +65,11 @@ confusionMatrix(table(factor(test_dataset[,length(test_dataset)], levels=c(1,0))
 #          Detection Rate : 0.3542          
 #    Detection Prevalence : 0.5000          
 #       Balanced Accuracy : 0.7188          
-                                          
 #        'Positive' Class : 1               
 
+# ROC curve, auc
 y_obs <- ifelse(test_dataset$danger==1,0,1)
-
 yhat_glmnet <- predict(lasso_model, s="lambda.min", newx=data.matrix(test_dataset[,-length(test_dataset)]), type="response", levels=c(1,0))
-
 
 yhat_glmnet <- yhat_glmnet[,1]
 pred_glment <- prediction(yhat_glmnet, y_obs)
