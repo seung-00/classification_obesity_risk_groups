@@ -286,16 +286,17 @@ dim(cleaned_data)
     #              Prevalence : 0.5156          
     #          Detection Rate : 0.3438          
     #    Detection Prevalence : 0.5000          
-  #       Balanced Accuracy : 0.6720          
-                                              
-  #        'Positive' Class : 1              
-    ```
+  #       Balanced Accuracy : 0.6720                                         
+    #        'Positive' Class : 1              
+  ```
   
-  * roc curve 및 auc
+    
   
-  ```r
-    performance(pred_glment, "auc")@y.values[[1]]
-  # [1] 0.7307943
+  * ROC curve 및 auc
+
+    ```r
+  performance(pred_glment, "auc")@y.values[[1]]
+    # [1] 0.7307943
     ```
   
     ​    <img src="https://user-images.githubusercontent.com/46865281/81467930-01c7dd00-9217-11ea-908e-59cc780d6270.png" width="500" height="500">
