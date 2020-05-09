@@ -165,13 +165,97 @@ dim(cleaned_data)
 
 * embedded 기법인 lasso 모델링
 
+  * 최적의 lambda 값을 찾기 위해 교차검증
+
   * cv.glmnet() 사용
 
-  * alpha =1, nfolds =5, type measure = auc
+    ```r
+    lasso_model <- cv.glmnet( x=data.matrix(train_dataset[,-length(train_dataset)]), y = train_dataset[,length(train_dataset)],
+    family = "binomial" , type.measure = "auc",alpha=1, nfolds=5)
+    
+    print(lasso_model)
+    #       Lambda Measure
+    # min 0.000974  0.7609
+    # 1se 0.006870  0.7505
+    
+    plot(lasso_model)
+    ```
 
-  * lasso 로지스틱 회귀 분석, 교차검증
+    <img src="https://user-images.githubusercontent.com/46865281/81467885-a0077300-9216-11ea-92fe-a209cf252799.png" width="500" height="500">
 
-    <img src="https://user-images.githubusercontent.com/46865281/81319264-61fd3880-90ca-11ea-979c-926ac559f155.png" width="500" height="500">
+* lasso 모형 선택 결과
+
+  * 오컴의 면도날(Occam’s razor)법칙에 의거해 1-표준편차 범위에서의 lambda 값으로 lasso 회귀 모형을 구축
+
+  ```r
+  coef(lasso_model, s=lasso_model$lambda.1se)
+  # 62 x 1 sparse Matrix of class "dgCMatrix"
+  #                          1
+  # (Intercept)   1.785289e-01
+  # age          -3.386398e-02
+  # sex           7.789862e-01
+  # BP_PHQ_5      1.795264e-01
+  # L_DN          6.769563e-01
+  # BS3_3         9.540215e-03
+  # BS12_31       2.083729e+00
+  # BD7_5         6.623972e-01
+  # BA1_3        -4.387191e-02
+  # N_VA_RAE      .           
+  # DH2_dg       -2.606102e-01
+  # BP_PHQ_6      2.014826e-01
+  # DI1_pt        5.921844e-02
+  # DJ2_dg       -1.415856e+00
+  # DI6_pt        2.261144e-01
+  # DI3_2        -1.054367e-01
+  # allownc       .           
+  # BA2_13       -1.281884e-01
+  # DC3_ag        2.090414e-03
+  # HE_Uket      -5.540785e-01
+  # HE_Uph       -1.682141e-01
+  # ainc_1       -2.663798e-05
+  # BE3_33       -7.354934e-03
+  # HE_DMfh3      .           
+  # HE_Uro       -5.265275e-01
+  # DH6_pt       -1.181475e-01
+  # BM13_1       -4.012821e-02
+  # BE3_31       -5.578935e-02
+  # BD2_14       -1.471718e-04
+  # HE_Upro       3.484368e-02
+  # DE1_pt        7.220648e-02
+  # BP7           .           
+  # BP16_23      -8.684099e-02
+  # BP16_21      -6.858476e-03
+  # BP_PHQ_7     -2.201851e-01
+  # T_Q_HR1       7.056406e-02
+  # DE2_dg        5.970471e-01
+  # npins        -3.361607e-01
+  # OR1_2        -2.031938e-01
+  # edu           1.989401e-01
+  # EC_pedu_2     6.891571e-04
+  # HE_hsCRP     -1.678640e-02
+  # DC2_dg        1.811893e+00
+  # HE_UCREA      .           
+  # LQ2_mn        .           
+  # BA2_2_4      -8.612346e-04
+  # Total_slp_wd  1.777133e-04
+  # BP16_22       3.962632e-03
+  # BP_PHQ_9     -8.371313e-02
+  # BA2_22       -2.884229e-02
+  # BE3_76       -8.513341e-02
+  # BE3_78        7.572839e-04
+  # BH1           2.222646e-01
+  # BM2_2         .           
+  # DJ8_pt        1.664835e-02
+  # L_BR_WHO      1.650758e-02
+  # DF2_pr       -8.215569e-02
+  # mh_stress     2.173938e-01
+  # BE8_2        -3.056252e-03
+  # BP2           1.590743e-04
+  # T_NQ_OCP_T    .           
+  # HE_fst       -2.050829e-02
+  ```
+
+  
 
 * 평가
 
@@ -179,37 +263,42 @@ dim(cleaned_data)
 
     ```r
     lasso_pred <- predict(lasso_model, newx=data.matrix(test_dataset[,-length(test_dataset)]),
-                          s=lasso_model$lambda.min, type= "class", levels=c(1,0))
+                          s=lasso_model$lambda.1se, type= "class", levels=c(1,0))
     
     confusionMatrix(table(factor(test_dataset[,length(test_dataset)], levels=c(1,0)),factor((lasso_pred), levels = c(1,0))))
          
     #      1  0
-    #   1 68 28
-    #   0 26 70             
-    #                Accuracy : 0.7188          
-    #                  95% CI : (0.6495, 0.7811)
-    #     No Information Rate : 0.5104          
-    #     P-Value [Acc > NIR] : 3.25e-09               
-    #                   Kappa : 0.4375          
-    #  Mcnemar's Test P-Value : 0.8918          
-    #             Sensitivity : 0.7234          
-    #             Specificity : 0.7143          
-    #          Pos Pred Value : 0.7083          
-    #          Neg Pred Value : 0.7292          
-    #              Prevalence : 0.4896          
-    #          Detection Rate : 0.3542          
+    #   1 66 30
+    #   0 33 63                                          
+    #                Accuracy : 0.6719          
+    #                  95% CI : (0.6006, 0.7378)
+    #     No Information Rate : 0.5156          
+    #     P-Value [Acc > NIR] : 8.289e-06       
+                                              
+    #                   Kappa : 0.3438          
+                                              
+    #  Mcnemar's Test P-Value : 0.8011          
+                                              
+    #             Sensitivity : 0.6667          
+    #             Specificity : 0.6774          
+    #          Pos Pred Value : 0.6875          
+    #          Neg Pred Value : 0.6562          
+    #              Prevalence : 0.5156          
+    #          Detection Rate : 0.3438          
     #    Detection Prevalence : 0.5000          
-    #       Balanced Accuracy : 0.7188          
-    #        'Positive' Class : 1    
+  #       Balanced Accuracy : 0.6720          
+                                              
+  #        'Positive' Class : 1              
     ```
-
+  
   * roc curve 및 auc
-
-    ```r
+  
+  ```r
     performance(pred_glment, "auc")@y.values[[1]]
-    # [1] 0.7203776
+  # [1] 0.7307943
     ```
-
-    ​    <img src="https://user-images.githubusercontent.com/46865281/81317716-26fa0580-90c8-11ea-968a-f028464460d0.png" width="500" height="500">
-
+  
+    ​    <img src="https://user-images.githubusercontent.com/46865281/81467930-01c7dd00-9217-11ea-908e-59cc780d6270.png" width="500" height="500">
+  
     
+

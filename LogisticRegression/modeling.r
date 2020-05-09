@@ -23,6 +23,7 @@ dim(lasso_data)
 # [1] 960  62
 
 # 파티션
+set.seed(2005)
 input_train <- createDataPartition(y=lasso_data$danger, p=0.8, list=FALSE)
 train_dataset <- lasso_data[input_train,]
 test_dataset <- lasso_data[-input_train,]
@@ -32,44 +33,53 @@ dim(train_dataset)
 dim(test_dataset)
 # [1] 192  62
 
-# lasso 모델링, 교차검증
+### lasso 모델링, 교차검증
 # auc 계산
 lasso_model <- cv.glmnet( x=data.matrix(train_dataset[,-length(train_dataset)]), y = train_dataset[,length(train_dataset)],
 family = "binomial" , type.measure = "auc",alpha=1, nfolds=5)
 
 print(lasso_model)
+#       Lambda Measure
+# min 0.000974  0.7609
+# 1se 0.006870  0.7505
 plot(lasso_model)
-#auc = 0.75
 
+coef(lasso_model, s=lasso_model$lambda.1se)
+
+as.matrix(coef(lasso_model, lasso_model$lambda.1se))
 
 # confusion matrix로 성능 계산
 lasso_pred <- predict(lasso_model, newx=data.matrix(test_dataset[,-length(test_dataset)]),
-                      s=lasso_model$lambda.min, type= "class", levels=c(1,0))
+                      s=lasso_model$lambda.1se, type= "class", levels=c(1,0))
 
 confusionMatrix(table(factor(test_dataset[,length(test_dataset)], levels=c(1,0)),factor((lasso_pred), levels = c(1,0))))
      
 #      1  0
-#   1 68 28
-#   0 26 70             
-#                Accuracy : 0.7188          
-#                  95% CI : (0.6495, 0.7811)
-#     No Information Rate : 0.5104          
-#     P-Value [Acc > NIR] : 3.25e-09               
-#                   Kappa : 0.4375          
-#  Mcnemar's Test P-Value : 0.8918          
-#             Sensitivity : 0.7234          
-#             Specificity : 0.7143          
-#          Pos Pred Value : 0.7083          
-#          Neg Pred Value : 0.7292          
-#              Prevalence : 0.4896          
-#          Detection Rate : 0.3542          
+#   1 66 30
+#   0 33 63                                          
+#                Accuracy : 0.6719          
+#                  95% CI : (0.6006, 0.7378)
+#     No Information Rate : 0.5156          
+#     P-Value [Acc > NIR] : 8.289e-06       
+                                          
+#                   Kappa : 0.3438          
+                                          
+#  Mcnemar's Test P-Value : 0.8011          
+                                          
+#             Sensitivity : 0.6667          
+#             Specificity : 0.6774          
+#          Pos Pred Value : 0.6875          
+#          Neg Pred Value : 0.6562          
+#              Prevalence : 0.5156          
+#          Detection Rate : 0.3438          
 #    Detection Prevalence : 0.5000          
-#       Balanced Accuracy : 0.7188          
-#        'Positive' Class : 1               
+#       Balanced Accuracy : 0.6720          
+                                          
+#        'Positive' Class : 1              
 
 # ROC curve, auc
 y_obs <- ifelse(test_dataset$danger==1,0,1)
-yhat_glmnet <- predict(lasso_model, s="lambda.min", newx=data.matrix(test_dataset[,-length(test_dataset)]), type="response", levels=c(1,0))
+yhat_glmnet <- predict(lasso_model, s="lambda.1se", newx=data.matrix(test_dataset[,-length(test_dataset)]), type="response", levels=c(1,0))
 
 yhat_glmnet <- yhat_glmnet[,1]
 pred_glment <- prediction(yhat_glmnet, y_obs)
@@ -77,4 +87,4 @@ pref_glment <- performance(pred_glment, measure="tpr", x.measure = "fpr")
 plot(pref_glment, col='black', main="ROC Curve")
 abline(0,1)
 performance(pred_glment, "auc")@y.values[[1]]
-# [1] 0.7203776
+# [1] 0.7307943

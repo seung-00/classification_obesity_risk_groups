@@ -90,7 +90,6 @@ cat(length(src_data)-length(pre_cleaned_data), "개의 결측치가 2000개 이�
 cleaned_data <- na.omit(pre_cleaned_data)
 cat(nrow(pre_cleaned_data)-nrow(cleaned_data), "개의 결측치가 포함된 행 제거\n")
 dim(cleaned_data)
-# [1] 1614  579
-
+# [1] 1614  578
 
 write.csv(cleaned_data, file="cleaned_data.csv", row.names=FALSE)
