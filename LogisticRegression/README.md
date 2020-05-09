@@ -273,29 +273,24 @@ dim(cleaned_data)
     #                Accuracy : 0.6719          
     #                  95% CI : (0.6006, 0.7378)
     #     No Information Rate : 0.5156          
-    #     P-Value [Acc > NIR] : 8.289e-06       
-                                              
+    #     P-Value [Acc > NIR] : 8.289e-06                                
     #                   Kappa : 0.3438          
-                                              
     #  Mcnemar's Test P-Value : 0.8011          
-                                              
     #             Sensitivity : 0.6667          
     #             Specificity : 0.6774          
     #          Pos Pred Value : 0.6875          
     #          Neg Pred Value : 0.6562          
     #              Prevalence : 0.5156          
     #          Detection Rate : 0.3438          
-    #    Detection Prevalence : 0.5000          
-  #       Balanced Accuracy : 0.6720                                         
-    #        'Positive' Class : 1              
-  ```
+    #    Detection Prevalence : 0.5000
+    #       Balanced Accuracy : 0.6720
+    #        'Positive' Class : 1
   
-    
-  
+
   * ROC curve 및 auc
 
     ```r
-  performance(pred_glment, "auc")@y.values[[1]]
+    performance(pred_glment, "auc")@y.values[[1]]
     # [1] 0.7307943
     ```
   
