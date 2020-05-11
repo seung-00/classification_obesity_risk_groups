@@ -33,7 +33,7 @@ dm_df <- dm_df %>% dplyr::select(-is_obe) %>%
 
 # 결측치가 많이 발견되어 검사에 무리를 준 특성을 제거
 # 관련 없는 특성의 제거
-dm_df <- dm_df %>% select(-age_month, - wt_pft, - wt_vt, - wt_nn, - wt_pfnt, - wt_pfvt, - wt_pfvtnt, - wt_vtnt, - wt_nnnt,
+dm_df <- dm_df %>% select(-age_month, - wt_pft, - wt_vt, - wt_nn, - wt_pfnt, - wt_pfvt, - wt_pfvtnt, - wt_vtnt, - wt_nnnt, -wt_tot, 
                           - BH9_14_1_01, - BH9_14_2_01, - BH9_14_3_01, - BH9_14_1_02, - BH9_14_2_02, - BH9_14_3_02, - BH9_14_1_03,
                           - BH9_14_2_03, - BH9_14_3_03, - AC3_1_01, - AC3_2_01, - AC3_3_01, - AC8_1_01, - AC3_4_01, - AC8_2w_01,
                           - AC8_2_01, - AC8_3w_01, - AC8_3_01, - AC3_1_02, - AC3_2_02, - AC3_3_02, - AC8_1_02, - AC3_4_02,
@@ -51,37 +51,47 @@ dm_df <- dm_df %>% select(-age_month, - wt_pft, - wt_vt, - wt_nn, - wt_pfnt, - w
 
 #View(dm_df)
 
-# test, training셋 분리
 
-set.seed(1000)
-intrain <- createDataPartition(y=dm_df$danger, p = 0.7, list = F)
-train <- dm_df[intrain,]
-test <- dm_df[-intrain,]
 
-# Train 셋을 Yes와 No로 분리
-train_no <- train %>% filter(train$danger == "No")
-train_yes <- train %>% filter(train$danger == "Yes")
+# 셋을 Yes와 No로 분리
+train_no <- dm_df %>% filter(dm_df$danger == "No")
+train_yes <- dm_df %>% filter(dm_df$danger == "Yes")
 
 # Train 셋을 리샘플링(Yes와 No를 1:1 비율로)
 train_no_ran_sam <- sample(1:nrow(train_no), nrow(train_yes))
-train_no <- train_no[train_no_ran_sam, ]
-train <- rbind(train_no, train_yes)
+train_no <- train_no[train_no_ran_sam,]
+dm_df <- rbind(train_no, train_yes)
+
+# test, training셋 분리
+set.seed(600)
+intrain <- createDataPartition(y=dm_df$danger, p = 0.8, list = F)
+train <- dm_df[intrain,]
+test <- dm_df[-intrain,]
+
+
 
 # tree 그리기
 t <- rpart(danger ~ ., data = train, method = 'class', control = rpart.control(minsplit = 2, minbucket = 1, cp = 0.0059))
-plot(t)
-text(t)
+
+
+# 모든 cp를 돌며 test 셋에 대한 confusion matrix를 구한다
+for (i in 1:nrow(t$cptable)) {
+    print(i, t$cptable[i, "CP"])
+    ptree <- prune(t, cp = t$cptable[i, "CP"])
+
+    pred <- predict(ptree, test, type = "class")
+    print(confusionMatrix(pred, as.factor(test$danger), positive = "Yes"))
+
+    pred <- predict(ptree, test, type = "prob")
+    pred <- prediction(pred[, 2], test$danger)
+    prf <- performance(pred, "tpr", "fpr")
+    win.graph()
+    plot(prf)
+    abline(0, 1, lty = 2)
+    print(performance(pred, "auc"))
+}
 
 # 트리 가지치기
 ptree <- prune(t, cp = t$cptable[which.min(t$cptable[, "xerror"]), "CP"])
 
 fancyRpartPlot(ptree)
-
-# 모든 cp를 돌며 test 셋에 대한 confusion matrix를 구한다
-for (i in 1:nrow(t$cptable)) {
-    print(i)
-    ptree <- prune(t, cp = t$cptable[i, "CP"])
-
-    pred <- predict(ptree, test, type = "class")
-    print(confusionMatrix(pred, as.factor(test$danger)))
-}
