@@ -63,7 +63,7 @@ train_no <- train_no[train_no_ran_sam,]
 dm_df <- rbind(train_no, train_yes)
 
 # test, training셋 분리
-set.seed(2000)
+set.seed(1000)
 intrain <- createDataPartition(y=dm_df$danger, p = 0.8, list = F)
 train <- dm_df[intrain,]
 test <- dm_df[-intrain,]
@@ -73,7 +73,7 @@ test <- dm_df[-intrain,]
 # tree 그리기
 t <- rpart(danger ~ ., data = train, method = 'class', control = rpart.control(minsplit = 2, minbucket = 1, cp = 0.0059))
 
-comment ='
+
 # 모든 cp를 돌며 test 셋에 대한 confusion matrix를 구한다
 for (i in 1:nrow(t$cptable)) {
     print(i, t$cptable[i, "CP"])
@@ -89,7 +89,7 @@ for (i in 1:nrow(t$cptable)) {
     plot(prf)
     abline(0, 1, lty = 2)
     print(performance(pred, "auc"))
-}'
+}
 
 # 트리 가지치기
 ptree <- prune(t, cp = t$cptable[which.min(t$cptable[, "xerror"]), "CP"])
