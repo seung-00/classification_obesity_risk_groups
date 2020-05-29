@@ -7,7 +7,6 @@ library(dplyr)
 library(caret)
 library(ROCR)
 library(ISLR)
-library(MASS)
 library(car)
 
 setwd("/Users/seungyoungoh/workspace/classification_obesity_risk_groups/Data")
