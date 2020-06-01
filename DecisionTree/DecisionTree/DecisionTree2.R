@@ -48,18 +48,14 @@ train <- resampled_df[intrain,]
 test <- resampled_df[-intrain,]
 
 get_set_from_file <- function() {
-    train <- read.csv("tree_train.csv")
-    test <- read.csv("tree_test.csv")
+    train <- read.csv("Data/tree_train.csv")
     train <- data.frame(train)
-    test <- data.frame(test)
 
     train <- train %>% select(-X)
-    test <- test %>% select(-X)
 
     for (i in 1:nrow(unver_attr)) {
         if (as.character(unver_attr[i, "변수명"]) %in% names(train)){
             train[, as.character(unver_attr[i, "변수명"])] <- as.factor(train[, as.character(unver_attr[i, "변수명"])])
-            test[, as.character(unver_attr[i, "변수명"])] <- as.factor(test[, as.character(unver_attr[i, "변수명"])])
         }
     }
 
