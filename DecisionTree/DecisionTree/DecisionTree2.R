@@ -6,128 +6,85 @@ library(rattle)
 library(rpart.plot)
 library(RColorBrewer)
 library(ROCR)
+library(readr)
 
-df18 <- read.spss("../../Data/Hn18_all.sav", header = T)
-dm_df <- data.frame(df18)
-# ¿ì¸®ÀÇ ¿¹Ãø¿¡ ÇØ´çÇÏÁö ¾Ê´Â, Ã¼Áß º¯È­ ¿©ºÎ¸¦ ¹«ÀÀ´äÇÏ°Å³ª ¼Ò¾ÆÀÎ °æ¿ì¸¦ Á¦¿Ü
-dm_df <- dm_df %>% filter(dm_df$BO1_1 != 8 & dm_df$BO1_1 != 9)
+cleaned_data <- read.csv("D:/Programming/R/classification_obesity_risk_groups/Data/cleaned_data(ëª¨ë¦„ ìœ ì§€).csv")
+cleaned_data <- data.frame(cleaned_data) 
 
-dim(dm_df)
-# [1] 6180  737
-# Å°³ª ¸ö¹«°Ô°¡ nan ÀÎ °æ¿ì Á¦¿Ü
-dm_df <- dm_df %>% filter(!is.na(dm_df$HE_wt))
-dm_df <- dm_df %>% filter(!is.na(dm_df$HE_ht))
-dim(dm_df)
-# [1] 6137  737
-
-# °ú°Å ¸ö¹«°Ô col »ı¼º
-dm_df$was_kg <- dm_df$HE_wt
-dm_df$was_kg <- ifelse(dm_df$BO1_3 == 1, dm_df$HE_wt - 4.5, dm_df$was_kg)
-dm_df$was_kg <- ifelse(dm_df$BO1_3 == 2, dm_df$HE_wt - 8, dm_df$was_kg)
-dm_df$was_kg <- ifelse(dm_df$BO1_3 == 3, dm_df$HE_wt - 12, dm_df$was_kg)
-
-# ÇöÀç or °ú°Å ºñ¸¸ÀÌ ¾Æ´Ï¾ú´ø Çàµé¸¸ ¼±ÅÃ (ÇöÀç °ú°Å ¸ğµÎ ºñ¸¸ÀÎ °æ¿ìµéÀ» Á¦¿Ü)
-dm_df <- dm_df %>% filter(((dm_df$HE_wt) / ((dm_df$HE_ht / 100) ^ 2) <= 25) | ((dm_df$was_kg) / ((dm_df$HE_ht / 100) ^ 2) <= 25))
-dim(dm_df)
-# [1] 4326  738
-
-# bmi ±âÁØ, if(ÇöÀç ºñ¸¸ÀÎµ¥ °ú°Å¿¡ ºñ¸¸ÀÌ ¾Æ´Ô) 1 else 0
-dm_df$danger <- ifelse(((dm_df$HE_wt) / ((dm_df$HE_ht / 100) ^ 2) > 25) &
-((dm_df$was_kg) / ((dm_df$HE_ht / 100) ^ 2) < 25), 1, 0)
-table(dm_df$danger)
-#    0    1 
-# 4008  318 
-
-# ÇÊ¿ä¾ø¾îÁø was_kg º¯¼ö¸¦ Á¦°Å,
-dm_df <- dm_df %>% select(-was_kg)
-
-# °áÃøÄ¡°¡ ¸¹ÀÌ ¹ß°ßµÇ¾î °Ë»ç¿¡ ¹«¸®¸¦ ÁØ Æ¯¼ºÀ» Á¦°Å
-# °ü·Ã ¾ø´Â Æ¯¼ºÀÇ Á¦°Å
-dm_df <- dm_df %>% select(-age_month, - wt_pft, - wt_vt, - wt_nn, - wt_pfnt, - wt_pfvt, - wt_pfvtnt, - wt_vtnt, - wt_nnnt,
-                          - BH9_14_1_01, - BH9_14_2_01, - BH9_14_3_01, - BH9_14_1_02, - BH9_14_2_02, - BH9_14_3_02, - BH9_14_1_03,
-                          - BH9_14_2_03, - BH9_14_3_03, - AC3_1_01, - AC3_2_01, - AC3_3_01, - AC8_1_01, - AC3_4_01, - AC8_2w_01,
-                          - AC8_2_01, - AC8_3w_01, - AC8_3_01, - AC3_1_02, - AC3_2_02, - AC3_3_02, - AC8_1_02, - AC3_4_02,
-                          - AC8_2w_02, - AC8_2_02, - AC8_3w_02, - AC8_3_02, - AC3_1_03, - AC3_2_03, - AC3_3_03, - AC8_1_03,
-                          - AC3_4_03, - AC8_2w_03, - AC8_2_03, - AC8_3w_03, - AC8_3_03, - sc_seatblt, - sc_seatblt2, - LW_ms,
-                          - LW_mp_a, - LW_ms_a, - LW_pr, - LW_pr_1, - LW_mt, - LW_mt_a1, - LW_mt_a2, - LW_br, - LW_br_ch,
-                          - LW_br_dur, - LW_br_yy, - LW_br_mm, - LW_oc, - HE_dprg, - HE_mPLS, - HE_wt_pct, - HE_BMI_pct,
-                          - HE_Folate, - HE_VitA, - HE_VitE, - HE_NNAL, - HE_cough1, - HE_cough2, - HE_sput1, - HE_sput2,
-                          - HE_PFTdr, - HE_PFTag, - HE_PFTtr, - HE_PFThs, - Y_BTH_WT, - Y_MTM_YN, - Y_MTM_S1, - Y_MTM_S2,
-                          - Y_MTM_D1, - Y_MTM_D2, - Y_FM_YN, - Y_FM_S1, - Y_FM_S2, - Y_FM_D1, - Y_FM_D2, - Y_MLK_ST, - Y_WN_ST,
-                          - Y_SUP_YN, - Y_SUP_KD1, - Y_SUP_KD3, - Y_SUP_KD4, - Y_SUP_KD7, - N_BFD_Y, - wt_hs) %>%
-                          select(-HE_obe, - HE_HDL_st2, - HE_chol, - HE_HDL_st2, - HE_TG, - HE_LDL_drct, - HE_HCHOL, - HE_HTG, - HE_HBsAg,
-                            - HE_ast, - HE_alt, - HE_hepaB, - ID, - BO1_3, - ID_fam, - id_M, - id_F, - LW_mp_e, - BO1_1, - HE_wc, - HE_wt,
-                            - HE_BMI, - psu, - BO1_2, - BO1, - fam_rela, - region)
-
-# ÀÇ¹Ì ¾ø´Â °ªÀÌ°Å³ª(¿¹: ³âµµ³ª ID) ¹®ÀÚ¿­ °ªÀÌ°í °ªµéÀÌ ÀÏÄ¡ÇÏÁö ¾Ê´Â °æ¿ì(¿¹: BM14_2, ±¸°­ Áø·á¸¦ ¹ŞÁö ¸øÇÑ »ó¼¼ ÀÌÀ¯) Á¦°Å
-src_data <- dm_df %>% select(- year, - mod_d, - DE1_35, - DC11_tp, - DC12_tp, - M_2_et, - BH9_14_4_02, - N_DT_DS, - N_DT_DS, - AC3_3e_01, - AC8_1e_01, - AC3_3e_02, - LQ4_24, - BH9_14_4_01, - N_DAY, - BM14_2, - BP2_2, - BO3_11, - EC_wht_6, - BS5_31, - BP2_2, - BD7_67, - BS12_35)
-
-src_data <- src_data[, - grep("etc", names(src_data))]
-src_data <- src_data[, - grep("ETC", names(src_data))]
-src_data <- src_data[, - grep("wt_", names(src_data))]
-# etc °¡ Æ÷ÇÔµÈ featureÀº °ª¿¡ ºÎµîÈ£°¡ Æ÷ÇÔµÊ
-
-cat("º»·¡ µ¥ÀÌÅÍ ¿­ °³¼ö: ", length(df18), ", ÇöÀç µ¥ÀÌÅÍ ¿­ °³¼ö:", length(src_data), "\n")
-
-
-# °¢ ¿­ÀÇ °áÃøÄ¡ °³¼ö¸¦ ¼¾´Ù.
-# apply(src_data, 2, function(x) {sum(is.na(x))})
-
-pre_cleaned_data <- src_data
-
-for (i in 1:length(src_data)) {
-    #°áÃøÄ¡ > 2000 ÀÌ¸é ÇØ´ç ¿­À» Á¦¿ÜÇÑ´Ù.
-    if (sum(is.na(src_data[i])) > 2000) {
-        pre_cleaned_data <- pre_cleaned_data %>% select(-names(src_data[i]))
-
-        # print(names(pre_cleaned_data[i]))
-        # "BH9_14_4_03" ÀÎÇÃ·ç¿£ÀÚ »ó¼¼
-        # "AC8_1e_02" ¼Õ»ó Ä¡·á ±âÅ¸ »ó¼¼
-        # "AC3_3e_03" ¼Õ»ó Ä¡·á ±âÅ¸ »ó¼¼
-        # "AC8_1e_03" ¼Õ»ó Ä¡·á ±âÅ¸ »ó¼¼
-        # "BS12_45" ÇöÀç »ç¿ë ´ã¹è Á¾·ù
-        # "BM13_6" Ä¡¾Æ ¼Õ»ó »çÀ¯
-    }
-}
-
-cat(length(src_data) - length(pre_cleaned_data), "°³ÀÇ °áÃøÄ¡°¡ 2000°³ ÀÌ»óÀÎ ¿­ Á¦°Å\n")
-
-# ¸¸¾à °áÃøÄ¡ 1000 ÀÌ»óÀÎ °æ¿ì¸¦ »ìÆìº¸¸é ´ÙÀ½°ú °°Àº ¿­µéÀÌ Ãß°¡ ¼±ÅÃµÈ´Ù.
-#  "BH1" °Ç°­ °ËÁø ¼öÁø ¿©ºÎ 
-#  "MH1_yr" 1³â°£ ÀÔ¿ø ÀÌ¿ë ¿©ºÎ
-#  "MH1_1"  ÀÔ¿ø ÀÌ¿ë È½¼ö 
-#  "MO1_wk" 2ÁÖ°£ ¿Ü·¡ ÀÌ¿ë ¿©ºÎ
-#  "BS10_3" ÃÖ±Ù 1´Ş µ¿¾È ´ã¹è¸¦ ÇÇ¿î ³¯ ÇÏ·ç Æò±Õ ¸î °³ºñ¸¦ ÇÇ¿ü³ª
-#  "HE_UNa_etc" ¿ä³ªÆ®·ı ÀåºñºĞ¼®¹üÀ§
-#  "MO4_4" Áø·áÇ×¸ñ: ±¸°­°Ë»ç?
-
-unver_attr <- read.csv(file = "../../Data/°áÃøÄ¡(¸ğ¸§)_Á¶»ç.csv")
+unver_attr <- read.csv(file = "D:/Programming/R/classification_obesity_risk_groups/Data/ê²°ì¸¡ì¹˜(ëª¨ë¦„)_ì¡°ì‚¬(unf).csv")
 unver_attr <- data.frame(unver_attr)
-unver_attr <- filter(unver_attr, unver_attr$Å¸ÀÔ == 1 | unver_attr$Å¸ÀÔ == 3)
+unver_attr <- filter(unver_attr, unver_attr$íƒ€ì… == 1 | unver_attr$íƒ€ì… == 3)
 
 for (i in 1:nrow(unver_attr)) {
-    print(unver_attr[i, "º¯¼ö¸í"])
-    pre_cleaned_data[, as.character(unver_attr[i, "º¯¼ö¸í"])] <- as.factor(pre_cleaned_data[, as.character(unver_attr[i, "º¯¼ö¸í"])])
+    #print(unver_attr[i, "ë³€ìˆ˜ëª…"])
+    cleaned_data[, as.character(unver_attr[i, "ë³€ìˆ˜ëª…"])] <- as.factor(cleaned_data[, as.character(unver_attr[i, "ë³€ìˆ˜ëª…"])])
 }
 
-train_no <- pre_cleaned_data %>% filter(pre_cleaned_data$danger == "No")
-train_yes <- pre_cleaned_data %>% filter(pre_cleaned_data$danger == "Yes")
+# wtê°€ ë¶™ì€ ê°€ì¤‘ì¹˜ ì†ì„± ì œê±°
+cleaned_data <- cleaned_data[, - grep("wt_", names(cleaned_data))]
+# IDì™€ ê°™ì´ ì˜¤ë¸Œì íŠ¸ë¥¼ ìœ ë‹ˆí¬í•˜ê²Œ ì‹ë³„í•  ìˆ˜ ìˆëŠ” ë²”ì£¼í˜• ì†ì„±ì„ ì‚­ì œ
+cleaned_data <- cleaned_data %>% select(-X, -ID, -ID_fam, -psu, -year, -mod_d, -DC11_tp, -M_2_et, -BH9_14_4_02, -N_DT_DS, -N_DT_DS, -AC3_3e_01, -AC3_3e_02, -LQ4_24, -BH9_14_4_01, -N_DAY, -BM14_2, -BO3_11, -EC_wht_6, -BS5_31, -BS12_35) %>%
+# BMI ìˆ˜ì¹˜ì™€ ê°™ì´ ë¶„ì„ì— ì§ì ‘ ì˜í–¥ì„ ì£¼ëŠ” ë³€ìˆ˜ë¥¼ ì‚­ì œ
+                select(-HE_obe, - BO1_3,- BO1_1, - HE_wt,
+                            - HE_BMI, - BO1_2, - HE_wc, - BO1)
+                            
+# HE_ê°€ ë¶™ì€ ì‹ ì²´ ìˆ˜ì¹˜ ì†ì„± ì œê±°
+cleaned_data <- cleaned_data[, - grep("HE_", names(cleaned_data))]
 
-# Train ¼ÂÀ» ¸®»ùÇÃ¸µ(Yes¿Í No¸¦ 1:1 ºñÀ²·Î)
+
+
+train_no <- cleaned_data %>% filter(cleaned_data$danger == 0)
+train_yes <- cleaned_data %>% filter(cleaned_data$danger == 1)
+
+# Train ì…‹ì„ ë¦¬ìƒ˜í”Œë§(Yesì™€ Noë¥¼ 1:1 ë¹„ìœ¨ë¡œ)
 train_no_ran_sam <- sample(1:nrow(train_no), nrow(train_yes))
 train_no <- train_no[train_no_ran_sam,]
-dm_df <- rbind(train_no, train_yes)
+resampled_df <- rbind(train_no, train_yes)
 
-# test, training¼Â ºĞ¸®
+# test, trainingì…‹ ë¶„ë¦¬
 set.seed(1000)
-intrain <- createDataPartition(y = pre_cleaned_data$danger, p = 0.8, list = F)
-train <- pre_cleaned_data[intrain,]
-test <- pre_cleaned_data[-intrain,]
+intrain <- createDataPartition(y = resampled_df$danger, p = 0.8, list = F)
+train <- resampled_df[intrain,]
+test <- resampled_df[-intrain,]
 
-# tree ±×¸®±â
+get_set_from_file <- function() {
+    train <- read.csv("tree_train.csv")
+    test <- read.csv("tree_test.csv")
+    train <- data.frame(train)
+    test <- data.frame(test)
+
+    train <- train %>% select(-X)
+    test <- test %>% select(-X)
+
+    for (i in 1:nrow(unver_attr)) {
+        if (as.character(unver_attr[i, "ë³€ìˆ˜ëª…"]) %in% names(train)){
+            train[, as.character(unver_attr[i, "ë³€ìˆ˜ëª…"])] <- as.factor(train[, as.character(unver_attr[i, "ë³€ìˆ˜ëª…"])])
+            test[, as.character(unver_attr[i, "ë³€ìˆ˜ëª…"])] <- as.factor(test[, as.character(unver_attr[i, "ë³€ìˆ˜ëª…"])])
+        }
+    }
+
+    return(train)
+}
+
+write_set_to_file <- function(tr) {
+    write.csv(tr, "tree_train.csv")
+}
+
+# tree ê·¸ë¦¬ê¸°
 t <- rpart(danger ~ ., data = train, method = 'class', control = rpart.control(minsplit = 2, minbucket = 1, cp = 0.0059))
 
-# Æ®¸® °¡ÁöÄ¡±â
-ptree <- prune(t, cp = t$cptable[which.min(t$cptable[, "xerror"]), "CP"])
+for (i in 1:nrow(t$cptable)) {
+    print(i, t$cptable[i, "CP"])
+    ptree <- prune(t, cp = t$cptable[i, "CP"])
 
-fancyRpartPlot(ptree)
+    pred <- predict(ptree, test, type = "class")
+    print(confusionMatrix(pred, as.factor(test$danger)))
+
+    pred <- predict(ptree, test, type = "prob")
+    pred <- prediction(pred[, 2], test$danger)
+    prf <- performance(pred, "tpr", "fpr")
+    win.graph()
+    plot(prf)
+    abline(0, 1, lty = 2)
+    print(performance(pred, "auc"))
+}
