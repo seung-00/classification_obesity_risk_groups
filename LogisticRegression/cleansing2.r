@@ -1,8 +1,9 @@
 library(dplyr)
+library(readr)
 
 setwd("/Users/seungyoungoh/workspace/classification_obesity_risk_groups/Data")
 #setwd("/.../classification_obesity_risk_groups/Data")
-df16_17_18 <- read.csv("국민건강영양조사(2016~2018).csv", header = T)
+df16_17_18 <- read.csv("국민건강영양조사(2016~2018).csv", fileEncoding = "CP949")
 dm_df <- df16_17_18
 # 우리의 예측에 해당하지 않는, 체중 변화 여부를 무응답하거나 소아인 경우를 제외
 dm_df <- dm_df %>% filter(dm_df$BO1_1 != 8 & dm_df$BO1_1 != 9)

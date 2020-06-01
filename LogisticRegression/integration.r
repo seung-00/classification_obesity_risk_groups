@@ -40,4 +40,4 @@ df16<-df16 %>% select(df16_17_18_cols)
 df16_17_18<-rbind(df16,df18,df17)
 dim(df16_17_18)
 # 24269   690
-write.csv(df17_18, file="국민건강영양조사(2016~2018).csv", row.names=FALSE)
+write.csv(df16_17_18, file="국민건강영양조사(2016~2018).csv", row.names=FALSE)
