@@ -88,11 +88,12 @@ dim(cleaned_data)
 # [1] 7641  548
 table(is.na(cleaned_data))
 table(cleaned_data$danger)
-#    0    1 
-# 7013  628
+#   0    1 
+# 6998  628 
+
+write.csv(cleaned_data, file="pre_cleaned_data.csv", row.names=FALSE)
 
 ####  missing value treatment
-
 # 모름: 9, 최빈값
 colname_subset_mode1 <- list("cfam","genertn","house","live_t","ainc_unit1","marri_1","marri_2","npins","D_1_1","D_2_1","DI1_dg","DI1_pr","DI1_pt","DI1_2","DI2_dg","DI2_pr","DI2_pt","DI2_2","DI3_dg","DI3_pr","DI3_pt","DI3_2","DI5_dg","DI5_pr","DI5_pt","DI6_dg","DI6_pr","DI6_pt","DM2_dg","DM2_pr","DM2_pt","DM3_dg","DM3_pr","DM3_pt","DM4_dg","DM4_pr","DM4_pt","DJ2_dg","DJ2_pr","DJ2_pt","DJ4_dg","DJ4_pr","DJ4_pt","DJ4_3","DE1_dg","DE1_pr","DE1_pt","DE1_3","DE1_31","DE1_32","DE1_33","DE1_34","DE1_4","DE2_dg","DE2_pr","DE2_pt","DC1_dg","DC1_pr","DC1_pt","DC2_dg","DC2_pr","DC2_pt","DC3_dg","DC3_pr","DC3_pt","DC4_dg","DC4_pr","DC4_pt","DC5_dg","DC5_pr","DC5_pt","DC6_dg","DC6_pr","DC6_pt","DC7_dg","DC7_pr","DC7_pt","DC11_dg","DC11_pr","DC11_pt","DF2_dg","DF2_pr","DF2_pt","DL1_dg","DL1_pr","DL1_pt","DJ8_dg","DJ8_pr","DJ8_pt","DJ6_dg","DJ6_pr","DJ6_pt","DH4_dg","DH4_pr","DH4_pt","DH2_dg","DH2_pr","DH2_pt","DH3_dg","DH3_pr","DH3_pt","DH6_dg","DH6_pr","DH6_pt","DN1_dg","DN1_pr","DN1_pt","DK8_dg","DK8_pr","DK8_pt","DK9_dg","DK9_pr","DK9_pt","DK4_dg","DK4_pr","DK4_pt","DI9_yd","DF1_yd","DN6_yd","DJ9_yd","M_2_yr","BH9_11","BH1","BH2_61","LQ4_00","LQ4_01","LQ4_02","LQ4_03","LQ4_04","LQ4_05","LQ4_06","LQ4_07","LQ4_08","LQ4_09","LQ4_10","LQ4_11","LQ4_12","LQ4_13","LQ4_14","LQ4_15","LQ4_16","LQ4_21","LQ4_22","LQ4_25","LQ4_26","LQ4_27","LQ4_28","LQ4_29","LQ4_23","LQ4_17","LQ4_18","LQ4_19","LQ4_20","LQ1_sb","LQ2_ab","LQ_1EQL","LQ_2EQL","LQ_3EQL","LQ_4EQL","LQ_5EQL","AC1_yr","MH1_yr","MO1_wk","graduat","CH2_1","CH2_2","EC1_1","EC_stt_1","EC_stt_2","EC_wht_0","EC_lgw_4","EC_lgw_5","BO2_1","BO3_01","BO3_02","BO3_03","BO3_14","BO3_05","BO3_04","BO3_12","BO3_07","BO3_09","BO3_10","BD1","BD1_11","BD2_1","BD2_31","BD2_32","BD7_4","BD7_5","BA2_12","BA2_13","BA1_3","BA1_5","BA2_2_1","BA2_2_3","BA2_2_5","BA2_22","BA1_1","BA1_2","BP1","BP5","BP6_10","BP6_2","BP6_31","BP7","BS1_1","BS3_1","BS5","BS5_1","BS5_5","BS5_21","BS5_28","BS5_26","BS5_33","BS5_34","BS5_32","BS5_29","BS5_30","BS8_2","BS9_2","BS13","BS12_1","BS12_2","BS12_31","BS12_32","BS12_33","BS12_34","BS12_36","BS12_41","BS12_42","BS12_43","BS12_44","BS12_46","BS10_1","BE3_71","BE3_81","BE3_91","BE3_75","BE3_85","BE5_1","HE_fh","HE_HPfh1","HE_HPfh2","HE_HPfh3","HE_HLfh1","HE_HLfh2","HE_HLfh3","HE_IHDfh1","HE_IHDfh2","HE_IHDfh3","HE_STRfh1","HE_STRfh2","HE_STRfh3","HE_DMfh1","HE_DMfh2","HE_DMfh3","HE_THfh1","HE_THfh2","HE_THfh3","HE_HBfh1","HE_HBfh2","HE_HBfh3","BM1_0","BM1_1","BM1_2","BM1_3","BM1_4","BM1_5","BM1_6","BM1_7","BM1_8","BM2_1","BM2_3","BM2_2","BM2_4","BM2_5","BM13","BM13_1","BM13_2","BM13_3","BM13_4","BM13_5","BM7","BM8","OR1_2","MO4_00","MO4_4","MO4_9","MO4_7","MO4_8","MO4_17","MO4_11","MO4_12","MO4_18","MO4_15","BM14","T_Q_HR","T_Q_HR1","T_Q_VN","T_Q_VN1","T_NQ_PH","T_NQ_OCP","T_NQ_OCP_P","T_NQ_LS","T_NQ_FIR","T_NQ_FIR_P","GS_use","L_OUT_FQ","L_BR_TO","L_BR_WHO","L_LN_TO","L_LN_WHO","L_DN_TO","L_DN_WHO","LS_1YR","LK_EDU","LK_LB_CO","LK_LB_US","LK_LB_EF","N_DIET","N_DIET_WHY","LF_BUYER")
 
@@ -119,21 +120,21 @@ na_val <- 9
     for (i in 1:length(colname_subset_mode1))
         {
         col_name <- as.character(colname_subset_mode1[i])
-        selected_data[col_name] <- apply(as.data.frame(selected_data[col_name]), 2, function(x) as.integer(gsub(na_val, Mode(x), x)))}
+        cleaned_data[col_name] <- apply(as.data.frame(cleaned_data[col_name]), 2, function(x) as.integer(gsub(na_val, Mode(x), x)))}
 
 # 모름이 99인 설문조사 결과를 최빈값 대체
 na_val <- 99
     for (i in 1:length(colname_subset_mode2))
         {
         col_name <- as.character(colname_subset_mode2[i])
-        selected_data[col_name] <- apply(as.data.frame(selected_data[col_name]), 2, function(x) as.integer(gsub(na_val, Mode(x), x)))}
+        cleaned_data[col_name] <- apply(as.data.frame(cleaned_data[col_name]), 2, function(x) as.integer(gsub(na_val, Mode(x), x)))}
 
 # 모름이 9인 설문조사 결과를 평균값 대체
 na_val <- 9
 for (i in 1:length(colname_subset_mean1))
 {
     col_name <- as.character(colname_subset_mean1[i])
-    selected_data[col_name] <- apply(as.data.frame(selected_data[col_name]), 2, function(x) as.integer(gsub(na_val, Mode(x), x)))
+    cleaned_data[col_name] <- apply(as.data.frame(cleaned_data[col_name]), 2, function(x) as.integer(gsub(na_val, Mode(x), x)))
 }
 
 # 모름이 99인 설문조사 결과를 평균값 대체
@@ -141,7 +142,7 @@ na_val <- 99
     for (i in 1:length(colname_subset_mean2))
         {
         col_name <- as.character(colname_subset_mean2[i])
-        selected_data[col_name] <- apply(as.data.frame(selected_data[col_name]), 2, function(x) as.integer(gsub(na_val, Mode(x), x)))}
+        cleaned_data[col_name] <- apply(as.data.frame(cleaned_data[col_name]), 2, function(x) as.integer(gsub(na_val, Mode(x), x)))}
 
 
 # 모름이 999인 설문조사 결과를 평균값 대체
@@ -149,27 +150,26 @@ na_val <- 999
     for (i in 1:length(colname_subset_mean3))
         {
         col_name <- as.character(colname_subset_mean3[i])
-        selected_data[col_name] <- apply(as.data.frame(selected_data[col_name]), 2, function(x) as.integer(gsub(na_val, Mode(x), x)))}
+        cleaned_data[col_name] <- apply(as.data.frame(cleaned_data[col_name]), 2, function(x) as.integer(gsub(na_val, Mode(x), x)))}
 
 # 모름이 9999인 설문조사 결과를 평균값 대체
 na_val <- 9999
     for (i in 1:length(colname_subset_mean4))
         {
         col_name <- as.character(colname_subset_mean4[i])
-        selected_data[col_name] <- apply(as.data.frame(selected_data[col_name]), 2, function(x) as.integer(gsub(na_val, Mode(x), x)))
-}
+        cleaned_data[col_name] <- apply(as.data.frame(cleaned_data[col_name]), 2, function(x) as.integer(gsub(na_val, Mode(x), x)))}
 
 # 모름이 999999인 설문조사 결과를 평균값 대체
 na_val <- 999999
     for (i in 1:length(colname_subset_mean5))
         {
         col_name <- as.character(colname_subset_mean5[i])
-        selected_data[col_name] <- apply(as.data.frame(selected_data[col_name]), 2, function(x) as.integer(gsub(na_val, Mode(x), x)))
+        cleaned_data[col_name] <- apply(as.data.frame(cleaned_data[col_name]), 2, function(x) as.integer(gsub(na_val, Mode(x), x)))
 }
 
 table(is.na(cleaned_data))
 # colSums(is.na(cleaned_data))  
 dim(cleaned_data)
+# [1] 7626  548
 
-
-write.csv(cleaned_data, file="cleaned_data.csv", row.names=FALSE)
+write.csv(cleaned_data, file="post_cleaned_data.csv", row.names=FALSE)
