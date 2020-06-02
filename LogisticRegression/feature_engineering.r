@@ -6,9 +6,11 @@ library(caret)
 library(ggplot2)
 library(glmnet)
 library(prettyR)
+library(readr)
 
 
 setwd("/Users/seungyoungoh/workspace/classification_obesity_risk_groups/Data")
+cleaned_data <- read_csv("cleaned_data.csv")
 cleaned_data <- read.csv("cleaned_data.csv", header=TRUE, stringsAsFactors = TRUE, na.strings=NA)
 
 ####  feature selection
