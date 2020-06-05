@@ -8,10 +8,34 @@ library(glmnet)
 library(prettyR)
 library(readr)
 
-
 setwd("/Users/seungyoungoh/workspace/classification_obesity_risk_groups/Data")
 cleaned_data <- read_csv("cleaned_data.csv")
-cleaned_data <- read.csv("cleaned_data.csv", header=TRUE, stringsAsFactors = TRUE, na.strings=NA)
+unknown_value <- read_csv("결측치(모름)_조사(unf).csv")
+unknown_value <- unknown_value %>% select(value_name, type)
+
+col_name <-as.character(unknown_value[1,1])
+
+cleaned_data[,col_name]<-as.factor(cleaned_data[,col_name])
+
+str(cleaned_data$town_t)
+
+cleaned_data[col_name] <- apply(as.data.frame(cleaned_data[col_name]), 2, as.factor)
+
+
+cleaned_data$town_t <- as.factor(cleaned_data$town_t)
+
+for (i in 1:length(unknown_value))
+{
+    if(unknown_value[i,2] == 1 || unknown_value[i,2] == 3)
+    {
+        unknown_value_name <-as.character(unknown_value[1,1])
+        unknown_value_name <- unknown_value[i,1]   
+    }
+}
+state1 <- dim(cleaned_data)
+cleaned_data$danger <- as.factor(cleaned_data$danger)
+
+
 
 ####  feature selection
 
@@ -19,6 +43,7 @@ cleaned_data <- read.csv("cleaned_data.csv", header=TRUE, stringsAsFactors = TRU
 # danger 팩터로
 
 table(is.na(cleaned_data))
+
 
 # 전진 선택
 Model_full <- glm(danger~.,family=binomial(link = 'logit'),data=cleaned_data)
@@ -43,84 +68,6 @@ summary(Model_forward)
 #     BP2 , T_NQ_OCP_T , HE_fst, family = binomial(link = "logit"), 
 #     data = cleaned_data)
 
-
-selected_data <- cleaned_data <- cleaned_data%>% select(age , sex , BP_PHQ_5 , L_DN , BS3_3 , 
-    BS12_31 , BD7_5 , BA1_3 , N_VA_RAE , DH2_dg , BP_PHQ_6 , 
-    DI1_pt , DJ2_dg , DI6_pt , DI6_ag , DI3_2 , allownc , BA2_13 , 
-    DC3_ag , HE_Uket , HE_Uph , ainc_1 , BE3_33 , HE_DMfh3 , 
-    HE_Uro , DH6_ag , DH6_pt , BM13_1 , BE3_31 , BD2_14 , HE_Upro , 
-    DE1_pt , DE1_pr , BP7 , BP16_23 , BP16_21 , BP_PHQ_7 , T_Q_HR1 , 
-    DE2_dg , npins , OR1_2 , edu , EC_pedu_2 , HE_hsCRP , DC2_dg , 
-    HE_UCREA , LQ2_mn , BA2_2_4 , Total_slp_wd , BP16_22 , BP_PHQ_9 , 
-    BA2_22 , HE_DMdg , BE3_76 , BE3_78 , BH1 , BM2_2 , DJ8_pt , 
-    DJ8_pr , L_BR_WHO , DF2_pr , DI1_2 , mh_stress , BE8_2 , 
-    BP2 , T_NQ_OCP_T , HE_fst, danger)
-
-dim(selected_data)
-# [1] 1614   68
-glimpse(selected_data)
-
-####  missing value treatment
-
-# 모름: 9, 최빈값
-colname_subset_mode1 <- list("BP_PHQ_5","BS12_31","BD7_5","BA1_3","DH2_dg","BP_PHQ_6","DI1_pt","DJ2_dg","DI6_pt","DI3_2","allownc","BA2_13","HE_DMfh3","DH6_pt","BM13_1","DE1_pt","DE1_pr","BP7","BP_PHQ_7","T_Q_HR1","DE2_dg","npins","OR1_2","DC2_dg","BP_PHQ_9","BA2_22","BE3_76","BH1","BM2_2","DJ8_pt","DJ8_pr","L_BR_WHO","DF2_pr","DI1_2")
-
-# 모름: 99, 최빈값
-colname_subset_mode2 <- list("BE3_31","EC_pedu_2","BP16_22","BP2")
-
-# 모름: 99, 평균값
-colname_subset_mean1 <- list("BS3_3","BE3_33","BP16_23","BP16_21","LQ2_mn","BE3_78","BE8_2")
-
-# 모름: 999, 평균값
-colname_subset_mean2 <- list("DI6_ag","DC3_ag","DH6_ag","BA2_2_4","T_NQ_OCP_T")
-
-
-# 모름이 9인 설문조사 결과를 최빈값 대체
-na_val <- 9
-for (i in 1:length(colname_subset_mode1))
-{
-    col_name <- as.character(colname_subset_mode1[i])
-    selected_data[col_name] <- apply(as.data.frame(selected_data[col_name]), 2, function(x) as.integer(gsub(na_val, Mode(x), x)))
-}
-
-# 모름이 99인 설문조사 결과를 최빈값 대체
-na_val <- 99
-for (i in 1:length(colname_subset_mode2))
-{
-    col_name <- as.character(colname_subset_mode2[i])
-    selected_data[col_name] <- apply(as.data.frame(selected_data[col_name]), 2, function(x) as.integer(gsub(na_val, Mode(x), x)))
-}
-
-# 모름이 99인 설문조사 결과를 평균값 대체
-na_val <- 99
-for (i in 1:length(colname_subset_mean1))
-{
-    col_name <- as.character(colname_subset_mean1[i])
-    selected_data[col_name] <- apply(as.data.frame(selected_data[col_name]), 2, function(x) as.integer(gsub(na_val, mean(x), x)))
-}
-
-
-# 모름이 999인 설문조사 결과를 평균값 대체
-na_val <- 999
-for (i in 1:length(colname_subset_mean2))
-{
-    col_name <- as.character(colname_subset_mean2[i])
-    selected_data[col_name] <- apply(as.data.frame(selected_data[col_name]), 2, function(x) as.integer(gsub(na_val, mean(x), x)))
-}
-
-# 모름이 9999인 설문조사 결과를 평균값 대체
-na_val <- 9999
-col_name <- "Total_slp_wd"
-selected_data[col_name] <- apply(as.data.frame(selected_data[col_name]), 2, function(x) as.integer(gsub(na_val, mean(x), x)))
-
-# 모름이 999999인 설문조사 결과를 평균값 대체
-na_val <- 999999
-col_name <- "ainc_1"
-selected_data[col_name] <- apply(as.data.frame(selected_data[col_name]), 2, function(x) as.integer(gsub(na_val, mean(x), x)))
-
-
-table(is.na(selected_data))
-dim(selected_data)
 
 ####  multicollinearity(다중공선성) problem
 # VIF 수식의 값이 10 이상 이면 해당 변수가 다중공선성이 존재하는 것으로 판단한다.
