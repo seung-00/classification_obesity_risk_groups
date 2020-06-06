@@ -8,28 +8,25 @@ library(RColorBrewer)
 library(ROCR)
 library(readr)
 
-cleaned_data <- read.csv("D:/Programming/R/classification_obesity_risk_groups/Data/cleaned_data(모름 유지).csv")
-cleaned_data <- data.frame(cleaned_data) 
+#cleaned_data <- read.csv("D:/Programming/R/classification_obesity_risk_groups/Data/cleaned_data.csv")
+cleaned_data <- read.csv("D:/Programming/R/classification_obesity_risk_groups/Data/post_cleaned_data.csv")
+cleaned_data <- data.frame(cleaned_data)
 
 unver_attr <- read.csv(file = "D:/Programming/R/classification_obesity_risk_groups/Data/결측치(모름)_조사(unf).csv")
 unver_attr <- data.frame(unver_attr)
-unver_attr <- filter(unver_attr, unver_attr$타입 == 1 | unver_attr$타입 == 3)
+unver_attr <- filter(unver_attr, unver_attr$type == 1 | unver_attr$type == 3)
 
 for (i in 1:nrow(unver_attr)) {
-    #print(unver_attr[i, "변수명"])
-    cleaned_data[, as.character(unver_attr[i, "변수명"])] <- as.factor(cleaned_data[, as.character(unver_attr[i, "변수명"])])
+    #print(unver_attr[i, "value_name"])
+    if (as.character(unver_attr[i, "value_name"]) %in% names(cleaned_data)){
+        cleaned_data[, as.character(unver_attr[i, "value_name"])] <- as.factor(cleaned_data[, as.character(unver_attr[i, "value_name"])])
+    }
 }
-
 # wt가 붙은 가중치 속성 제거
 cleaned_data <- cleaned_data[, - grep("wt_", names(cleaned_data))]
-# ID와 같이 오브젝트를 유니크하게 식별할 수 있는 범주형 속성을 삭제
-cleaned_data <- cleaned_data %>% select(-X, -ID, -ID_fam, -psu, -year, -mod_d, -DC11_tp, -M_2_et, -BH9_14_4_02, -N_DT_DS, -N_DT_DS, -AC3_3e_01, -AC3_3e_02, -LQ4_24, -BH9_14_4_01, -N_DAY, -BM14_2, -BO3_11, -EC_wht_6, -BS5_31, -BS12_35) %>%
-# BMI 수치와 같이 분석에 직접 영향을 주는 변수를 삭제
-                select(-HE_obe, - BO1_3,- BO1_1, - HE_wt,
-                            - HE_BMI, - BO1_2, - HE_wc, - BO1)
-                            
 # HE_가 붙은 신체 수치 속성 제거
 cleaned_data <- cleaned_data[, - grep("HE_", names(cleaned_data))]
+cleaned_data <- select(cleaned_data, -kstrata)
 
 
 
@@ -54,8 +51,8 @@ get_set_from_file <- function() {
     train <- train %>% select(-X)
 
     for (i in 1:nrow(unver_attr)) {
-        if (as.character(unver_attr[i, "변수명"]) %in% names(train)){
-            train[, as.character(unver_attr[i, "변수명"])] <- as.factor(train[, as.character(unver_attr[i, "변수명"])])
+        if (as.character(unver_attr[i, "value_name"]) %in% names(train)){
+            train[, as.character(unver_attr[i, "value_name"])] <- as.factor(train[, as.character(unver_attr[i, "value_name"])])
         }
     }
 
@@ -63,11 +60,25 @@ get_set_from_file <- function() {
 }
 
 write_set_to_file <- function(tr) {
-    write.csv(tr, "tree_train.csv")
+    write.csv(tr, "Data/tree_train.csv")
 }
 
-# tree 그리기
-t <- rpart(danger ~ ., data = train, method = 'class', control = rpart.control(minsplit = 2, minbucket = 1, cp = 0.0059))
+plot_best_tree_on_wid <- function(t) {
+    win.graph()
+    ptree <- prune(t, cp = t$cptable[which.min(t$cptable[, "xerror"]), "CP"])
+
+    fancyRpartPlot(ptree)
+}
+
+# 저장된 훈련셋을 이용할 때 밑 라인의 주석을 제거하면 됨
+#train <- get_set_from_file()
+
+# tree 새로 그릴 때
+t <- rpart(danger ~ ., data = train, method = 'class')
+# pre_train 셋 재현할 때
+#t <- rpart(danger ~ BO2_1 + age + GS_mea_r_1 + N_WAT_C + MH1_yr + GS_mea_r_3 + BD2 + N_N3 +  L_OUT_FQ + apt_t + L_BR_FQ, data = train, method = 'class')
+# post_train 셋 재현할 때
+#t <- rpart(danger ~ BO2_1 + age + GS_mea_l_2 + educ + GS_mea_r_3 + LK_LB_IT + BE3_32 + ainc +  N_FE + N_WAT_C + BD2 + N_B1 + EC_wht_23, data = train, method = 'class')
 
 for (i in 1:nrow(t$cptable)) {
     print(i, t$cptable[i, "CP"])
@@ -84,3 +95,5 @@ for (i in 1:nrow(t$cptable)) {
     abline(0, 1, lty = 2)
     print(performance(pred, "auc"))
 }
+
+plot_best_tree_on_wid(t)
