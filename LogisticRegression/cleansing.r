@@ -1,3 +1,7 @@
+if(TRUE)"
+cleansing.r은 국민건강영양조사(2016~2018).csv 를 전처리 후 '모름' 응답 값이 대체되지 않은 pre_cleaned_data.csv와, 대체된 post_cleaned_data.csv 로 저장합니다.
+"
+
 library(dplyr)
 library(readr)
 library(prettyR)
@@ -18,25 +22,25 @@ dim(dm_df)
 # [1] 18253   690
 
 # 과거 몸무게 col 생성
-dm_df$was_kg <- dm_df$HE_wt
-dm_df$was_kg <- ifelse(dm_df$BO1_3 == 1, dm_df$HE_wt - 4.5, dm_df$was_kg)
-dm_df$was_kg <- ifelse(dm_df$BO1_3 == 2, dm_df$HE_wt - 8, dm_df$was_kg)
-dm_df$was_kg <- ifelse(dm_df$BO1_3 == 3, dm_df$HE_wt - 12, dm_df$was_kg)
+dm_df$past_wt <- dm_df$HE_wt
+dm_df$past_wt <- ifelse(dm_df$BO1_3 == 1, dm_df$HE_wt - 4.5, dm_df$past_wt)
+dm_df$past_wt <- ifelse(dm_df$BO1_3 == 2, dm_df$HE_wt - 8, dm_df$past_wt)
+dm_df$past_wt <- ifelse(dm_df$BO1_3 == 3, dm_df$HE_wt - 12, dm_df$past_wt)
 
 # 현재 or 과거 비만이 아니었던 행들만 선택 (현재 과거 모두 비만인 경우들을 제외)
-dm_df <- dm_df %>% filter(((dm_df$HE_wt)/((dm_df$HE_ht/100)^2) <= 25) | ((dm_df$was_kg)/((dm_df$HE_ht/100)^2) <= 25))
+dm_df <- dm_df %>% filter(((dm_df$HE_wt)/((dm_df$HE_ht/100)^2) <= 25) | ((dm_df$past_wt)/((dm_df$HE_ht/100)^2) <= 25))
 dim(dm_df)
 # 12890   691
 
 # bmi 기준, if(현재 비만인데 과거에 비만이 아님) 1 else 0
 dm_df$danger <- ifelse(((dm_df$HE_wt)/((dm_df$HE_ht/100)^2) > 25) &
-((dm_df$was_kg)/((dm_df$HE_ht/100)^2) < 25), 1, 0)
+((dm_df$past_wt)/((dm_df$HE_ht/100)^2) < 25), 1, 0)
 table(dm_df$danger)
 #    0    1 
 # 11875  1015
 
-# 필요없어진 was_kg 변수를 제거,
-dm_df <- dm_df %>% select(-was_kg)
+# 필요없어진 past_wt 변수를 제거,
+dm_df <- dm_df %>% select(-past_wt)
 
 # 결측치가 많이 발견되어 검사에 무리를 준 특성을 제거
 # 관련 없는 특성의 제거

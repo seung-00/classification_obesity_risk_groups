@@ -1,3 +1,11 @@
+if(TRUE)"
+integration.r 코드입니다.
+integration.r은 국민건강영양조사 2016~2018 데이터를 통합하는 기능을 합니다.
+통합된 데이터는 
+국민건강영양조사(2016~2018).csv
+로 저장됩니다.
+"
+
 library(dplyr)
 
 setwd("/Users/seungyoungoh/workspace/classification_obesity_risk_groups/Data")

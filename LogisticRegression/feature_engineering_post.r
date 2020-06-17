@@ -1,3 +1,8 @@
+if(TRUE)"
+feature_engineering_pre은 '모름'이 대체된 post_cleaned_data.csv를 전처리 후 post_selected_data.csv로 저장합니다
+쓰이는 방법론으로는 전진선택, VIF, random undersampling 등이 있습니다.
+"
+
 library(sampling)
 library(car)
 library(dplyr)

@@ -1,3 +1,11 @@
+if(TRUE)"
+modeling.r은 pre_selected_data 혹은 post_selected_data.csv를 대상으로 lasso 로지스틱 회귀 모형을 수행합니다.
+아래 코드는 pre_selected_data 를 읽는 부분이 주석처리되어 있습니다.
+모델 평가 결과는 마지막에 주석으로 남겨놨습니다.
+쓰이는 방법론으로는 lsso 회귀 모형이 있으며 사용되는 평가 지표는 혼동 행렬, ROC Curve 이고 lasso 의 안정적인 성능을 위해 10-fold 교차검증이 동반됩니다.
+"
+
+
 #  install.packages("gbm")
 library(gridExtra)
 library(foreign)
@@ -98,6 +106,9 @@ confusionMatrix(table(factor(test_dataset[,length(test_dataset)], levels=c(1,0))
 #       Balanced Accuracy : 0.6165          
                                           
 #        'Positive' Class : 1                    
+
+
+
 
 ## post confusionMatrix result
 #      1  0
