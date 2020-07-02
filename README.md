@@ -1,12 +1,16 @@
-Kyung-Hee Univ. Dataminig Term-Project
-
 # Classification Obesity Risk Groups
 
 ## 개요
 
+*  경희대 데이터마이닝 텀프로젝트 
+
+   *  [제출한 보고서](https://drive.google.com/file/d/1VnCOygnr5cw5ArcJROciQdSaEbkZEDpT/view?usp=sharing)
+
 *  “체중이 증가하는 사람들의 특징들을 파악해 이를 바탕으로 사전에 비만 위험군을 분류할 수 있다” 라는 가설을 세우고 이를 증명하는 분석을 수행함
 
 * 국민건강영양조사 데이터의 "모름" 응답 값을 대체하는 경우, 성능에 어떤 영향을 주는지 두 번의 실험을 통해 비교함
+
+  
 
 ## EDA
 
